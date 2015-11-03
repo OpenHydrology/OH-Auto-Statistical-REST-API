@@ -19,7 +19,7 @@
 
 from flask import Flask, g
 from flask_restful import Api
-from resources.report import Report
+from resources.report import AnalysisRes, AnalysisQueueRes
 from resources.catchment import CatchmentListRes, CatchmentRes
 from floodestimation import db
 
@@ -40,7 +40,9 @@ def teardown_request(exception):
         db_session.close()
 
 
-api.add_resource(Report,           '/api/v0/reports/<int:catchment_id>')
+api.add_resource(AnalysisRes,      '/api/v0/analyses/')
+api.add_resource(AnalysisRes,      '/api/v0/analyses/<int:catchment_id>', endpoint='a')
+api.add_resource(AnalysisQueueRes, '/api/v0/analyses_queue/<int:queue_id>')
 api.add_resource(CatchmentListRes, '/api/v0/catchments/')
 api.add_resource(CatchmentRes,     '/api/v0/catchments/<int:catchment_id>')
 
