@@ -1,5 +1,5 @@
 import flask
-from flask_restful import Api
+import flask_restful
 from celery import Celery
 from resources.report import AnalysisRes, AnalysisStatusRes
 from resources.catchment import CatchmentListRes, CatchmentRes
@@ -12,7 +12,7 @@ class Application(object):
         self.flask_app = flask.Flask(__name__)
         self.flask_app.config.from_object('settings')
 
-        self.rest_api = Api(self.flask_app)
+        self.rest_api = flask_restful.Api(self.flask_app)
 
         self.db = floodestimation.db
         self._set_db_session()
@@ -33,7 +33,7 @@ class Application(object):
 
     def celery(self):
         app = self.flask_app
-        celery = Celery(app.import_name, broker=app.config['BROKER_URL'])
+        celery = Celery(app.import_name)
         celery.conf.update(app.config)
 
         TaskBase = celery.Task
