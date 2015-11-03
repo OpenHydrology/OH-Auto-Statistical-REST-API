@@ -19,13 +19,14 @@
 
 from flask import Flask, g
 from flask_restful import Api
-from resources.report import AnalysisRes, AnalysisQueueRes
+from resources.report import AnalysisRes, AnalysisStatusRes
 from resources.catchment import CatchmentListRes, CatchmentRes
 from floodestimation import db
 
 
 app = Flask(__name__)
 api = Api(app)
+app.config.from_object('settings')
 
 
 @app.before_request
@@ -40,11 +41,11 @@ def teardown_request(exception):
         db_session.close()
 
 
-api.add_resource(AnalysisRes,      '/api/v0/analyses/')
-api.add_resource(AnalysisRes,      '/api/v0/analyses/<int:catchment_id>', endpoint='a')
-api.add_resource(AnalysisQueueRes, '/api/v0/analyses_queue/<int:queue_id>')
-api.add_resource(CatchmentListRes, '/api/v0/catchments/')
-api.add_resource(CatchmentRes,     '/api/v0/catchments/<int:catchment_id>')
+api.add_resource(AnalysisRes,       '/api/v0/analyses/', endpoint='analyses_post')
+api.add_resource(AnalysisRes,       '/api/v0/analyses/<int:catchment_id>')
+api.add_resource(AnalysisStatusRes, '/api/v0/analyses_status/<task_id>', endpoint='analyses_status')
+api.add_resource(CatchmentListRes,  '/api/v0/catchments/')
+api.add_resource(CatchmentRes,      '/api/v0/catchments/<int:catchment_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)

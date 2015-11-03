@@ -1,4 +1,8 @@
 python=3.4.*
 flask=0.10.*
+# channel: faph
 flask-restful=0.3.4
+# channel: openhydrology
 autostatistical=0.8.0
+# channel: axiom-data-science
+celery=3.1.*
