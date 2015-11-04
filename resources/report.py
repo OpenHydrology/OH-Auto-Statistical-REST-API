@@ -28,7 +28,7 @@ class AnalysisRes(Resource):
             if len(files) == 2:
                 amax_file = [f for f in files if os.path.splitext(f.filename)[1].lower() == '.am'][0]
                 if not amax_file:
-                    return {'error': "Second file must AMAX (.am) file."}, 400
+                    return {'error': "Second file must be AMAX (.am) file."}, 400
 
         # Save input files to a working folder
         work_folder = tempfile.mkdtemp(dir=core.app.flask_app.config['ANALYSIS_FOLDER'])
