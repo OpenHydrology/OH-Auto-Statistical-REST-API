@@ -20,6 +20,13 @@ class Application(object):
         self.debug = debug
         self._set_routes()
 
+    def _set_routes(self):
+        self.rest_api.add_resource(AnalysisRes,       '/api/v0/analyses/', endpoint='analyses_post')
+        self.rest_api.add_resource(AnalysisRes,       '/api/v0/analyses/<int:task_id>')
+        self.rest_api.add_resource(AnalysisStatusRes, '/api/v0/analyses_status/<task_id>', endpoint='analyses_status')
+        self.rest_api.add_resource(CatchmentListRes,  '/api/v0/catchments/')
+        self.rest_api.add_resource(CatchmentRes,      '/api/v0/catchments/<int:catchment_id>')
+
     def _set_db_session(self):
         @self.flask_app.before_request
         def before_request():
@@ -46,13 +53,6 @@ class Application(object):
         celery.Task = ContextTask
 
         return celery
-
-    def _set_routes(self):
-        self.rest_api.add_resource(AnalysisRes,       '/api/v0/analyses/', endpoint='analyses_post')
-        self.rest_api.add_resource(AnalysisRes,       '/api/v0/analyses/<int:catchment_id>')
-        self.rest_api.add_resource(AnalysisStatusRes, '/api/v0/analyses_status/<task_id>', endpoint='analyses_status')
-        self.rest_api.add_resource(CatchmentListRes,  '/api/v0/catchments/')
-        self.rest_api.add_resource(CatchmentRes,      '/api/v0/catchments/<int:catchment_id>')
 
     def start_app(self):
         self.flask_app.run(debug=self.debug)

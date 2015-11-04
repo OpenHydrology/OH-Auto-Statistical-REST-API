@@ -1,4 +1,4 @@
-from ohaswa import celery, app
+from core import celery, app
 import random
 import time
 

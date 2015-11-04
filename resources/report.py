@@ -2,21 +2,21 @@
 
 from flask_restful import Resource
 from flask import Response, url_for
-import ohaswa
+import core
 
 
 class AnalysisRes(Resource):
     def post(self):
-        task = ohaswa.tasks.long_task.delay()
+        task = core.tasks.long_task.delay()
         return None, 202, {'Location': url_for('analyses_status', task_id=task.id)}
 
-    def get(self, catchment_id):
+    def get(self, task_id):
         return Response("hello", mimetype='text/plain')
 
 
 class AnalysisStatusRes(Resource):
     def get(self, task_id):
-        task = ohaswa.tasks.long_task.AsyncResult(task_id)
+        task = core.tasks.long_task.AsyncResult(task_id)
         if task.state == 'PENDING':
             response = {
                 'state': task.state,

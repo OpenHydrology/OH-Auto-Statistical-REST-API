@@ -1,3 +1,3 @@
-import ohaswa
+import core
 
-ohaswa.app.start_app()
+core.app.start_app()
