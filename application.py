@@ -1,7 +1,7 @@
 import flask
 import flask_restful
 from celery import Celery
-from resources.report import AnalysisRes, AnalysisStatusRes
+from resources.analysis import AnalysisRes, AnalysisStatusRes
 from resources.catchment import CatchmentListRes, CatchmentRes
 import floodestimation
 
