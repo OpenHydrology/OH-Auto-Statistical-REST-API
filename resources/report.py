@@ -1,52 +1,49 @@
 # -*- coding: utf-8 -*-
 
 from flask_restful import Resource
-from flask import Response, url_for
+from flask import Response, url_for, abort
 import core
 
 
 class AnalysisRes(Resource):
     def post(self):
-        task = core.tasks.long_task.delay()
+        """Schedule an analysis task"""
+        task = core.tasks.do_analysis.delay()
+        # Accept task and provide status URL
         return None, 202, {'Location': url_for('analyses_status', task_id=task.id)}
 
     def get(self, task_id):
-        return Response("hello", mimetype='text/plain')
+        """Return the results of the analysis task"""
+        task = core.tasks.do_analysis.AsyncResult(task_id)
+        try:
+            report_text = task.info['result']
+            return Response(report_text, mimetype='text/plain')
+        except KeyError:
+            # If there's no result, analysis is still running
+            abort(404)
 
 
 class AnalysisStatusRes(Resource):
     def get(self, task_id):
-        task = core.tasks.long_task.AsyncResult(task_id)
+        """Return the status of the analyses task. Redirect to task results when finished."""
+        task = core.tasks.do_analysis.AsyncResult(task_id)
         if task.state == 'PENDING':
             response = {
                 'state': task.state,
-                'current': 0,
-                'total': 1,
-                'status': 'Pending...'
+                'message': 'Pending...'
             }
         elif task.state != 'FAILURE':
             response = {
                 'state': task.state,
-                'current': task.info.get('current', 0),
-                'total': task.info.get('total', 1),
-                'status': task.info.get('status', '')
+                'message': task.info.get('message', '')
             }
             if 'result' in task.info:
-                response['result'] = task.info['result']
+                # Redirect to analysis task results
+                return None, 303, {'Location': url_for('analyses_get', task_id=task.id)}
         else:
-            # something went wrong in the background job
             response = {
                 'state': task.state,
-                'current': 1,
-                'total': 1,
-                'status': str(task.info),  # this is the exception raised
+                'message': "Error: {}".format(task.info),
             }
         return response
 
-# class AnalysisQueueRes(Resource):
-#     def get(self, queue_id):
-#         finished = True
-#         if finished:
-#             return None, 303, {'Location': '/api/v0/analyses/8001'}
-#         else:
-#             return {'status': 'pending'}
