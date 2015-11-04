@@ -16,28 +16,29 @@ class AnalysisRes(Resource):
         """
         files = list(request.files.values())
         if len(files) < 1:
-            return {'error': "Catchment file (.cd3 or .xml) required."}, 400
+            return {'message': "Catchment file (.cd3 or .xml) required."}, 400
         elif len(files) > 2:
-            return {'error': "Too many files supplied."}, 400
+            return {'message': "Too many files supplied."}, 400
         else:
             catchment_file = [f for f in files if os.path.splitext(f.filename)[1].lower() in ['.cd3', '.xml']][0]
             catchment_ext = os.path.splitext(catchment_file.filename)[1].lower()
             amax_file = None
             if not catchment_file:
-                return {'error': "Catchment file (.cd3 or .xml) required."}, 400
+                return {'message': "Catchment file (.cd3 or .xml) required."}, 400
             if len(files) == 2:
                 amax_file = [f for f in files if os.path.splitext(f.filename)[1].lower() == '.am'][0]
                 if not amax_file:
-                    return {'error': "Second file must be AMAX (.am) file."}, 400
+                    return {'message': "Second file must be AMAX (.am) file."}, 400
 
         # Save input files to a working folder
         work_folder = tempfile.mkdtemp(dir=core.app.flask_app.config['ANALYSIS_FOLDER'])
-        catchment_file.save(os.path.join(work_folder, 'catchment' + catchment_ext))
+        catchment_fp = os.path.join(work_folder, 'catchment' + catchment_ext)
+        catchment_file.save(catchment_fp)
         if amax_file:
             amax_file.save(os.path.join(work_folder, 'catchment.am'))
 
         # Task will pick up files from working folder
-        task = core.tasks.do_analysis.delay(work_folder)
+        task = core.tasks.do_analysis.delay(catchment_fp)
 
         # Return status URL
         return None, 202, {'Location': url_for('analyses_status', task_id=task.id)}
@@ -45,12 +46,11 @@ class AnalysisRes(Resource):
     def get(self, task_id):
         """Return the results of the analysis task"""
         task = core.tasks.do_analysis.AsyncResult(task_id)
-        try:
-            report_text = task.info['result']
-            return Response(report_text, mimetype='text/plain')
-        except KeyError:
-            # If there's no result, analysis is still running
-            abort(404)
+        if not task.state == 'SUCCESS':
+            return {'message': "Analysis not yet completed."}, 404
+
+        report_text = task.info['result']
+        return Response(report_text, mimetype='text/plain')
 
 
 class AnalysisStatusRes(Resource):
@@ -73,7 +73,7 @@ class AnalysisStatusRes(Resource):
         else:
             response = {
                 'state': task.state,
-                'message': "Error: {}".format(task.info),
+                'message': str(task.info),  # Error message
             }
         return response
 

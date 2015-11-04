@@ -4,7 +4,7 @@ import time
 
 
 @celery.task(bind=True)
-def do_analysis(self, work_folder):
+def do_analysis(self, catchment_file):
     """Background OH Auto Statistical analysis task."""
     message = ''
     total = random.randint(10, 50)
