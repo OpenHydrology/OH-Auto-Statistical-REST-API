@@ -1,7 +1,7 @@
 OH Auto Statistical web API
 ===========================
 
-RESTful webservice for OH Auto Statistical.
+RESTful webservice API for OH Auto Statistical.
 
 Catchments
 ----------
@@ -9,7 +9,8 @@ Catchments
  - `GET /api/v0/catchments/`
  - `GET /api/v0/catchments/<int:catchment_id>`
 
-Reports
--------
+Analyses
+--------
 
- - `GET /api/v0/reports/<int:catchment_id>`
+ - `POST /api/v0/analyses/`
+ - `GET /api/v0/analyses_status/<task_id>`
