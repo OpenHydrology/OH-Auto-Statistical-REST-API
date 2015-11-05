@@ -1,7 +1,7 @@
 OH Auto Statistical web API
 ===========================
 
-RESTful webservice API for OH Auto Statistical.
+RESTful web API for OH Auto Statistical analyses.
 
 Catchments
 ----------
