@@ -1,15 +1,28 @@
 from core import celery, app
 import autostatistical
+from glob import glob
+import os.path
+import shutil
 
 
 @celery.task(bind=True)
-def do_analysis(self, catchment_file):
+def do_analysis(self, catchment_fp):
     """Background OH Auto Statistical analysis task."""
-    message = ''
-    self.update_state(state='PROGRESS')
+    work_folder = os.path.dirname(catchment_fp)
+    # self.update_state(state='PROGRESS')
 
-    analysis = autostatistical.Analysis(catchment_file)
-    analysis.run()
+    try:
+        analysis = autostatistical.Analysis(catchment_fp)
+        analysis.run()
+        # TODO: make autostatistical output a string instead of write to file.
+        # TOOD: reimplement autostatistical here to have greater flexibility on outputs (json, markdown, csv?).
 
-    return {'message': message,
-            'result': "OH Auto Statistical Report"}
+        # For just now:
+        result_fp = glob(os.path.join(work_folder, '*.md'))[0]
+        with open(result_fp, encoding='utf-8') as result_f:
+            result = result_f.read()
+        return {'message': '', 'result': result}
+    except Exception as e:
+        return {'message': str(e)}
+    finally:
+        shutil.rmtree(work_folder)
