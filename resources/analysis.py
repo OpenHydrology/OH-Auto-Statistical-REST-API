@@ -46,34 +46,29 @@ class AnalysisRes(Resource):
     def get(self, task_id):
         """Return the results of the analysis task"""
         task = core.tasks.do_analysis.AsyncResult(task_id)
-        if not task.state == 'SUCCESS':
+        if task.state == 'SUCCESS':
+            report_text = task.info['result']
+            return Response(report_text, mimetype='text/plain')
+        else:
             return {'message': "Analysis not yet completed."}, 404
-
-        report_text = task.info['result']
-        return Response(report_text, mimetype='text/plain')
 
 
 class AnalysisStatusRes(Resource):
     def get(self, task_id):
         """Return the status of the analyses task. Redirect to task results when finished."""
         task = core.tasks.do_analysis.AsyncResult(task_id)
+
         if task.state == 'PENDING':
-            response = {
-                'state': task.state,
-                'message': 'Pending...'
-            }
+            response = {'state': task.state,
+                        'message': 'Pending...'}
         elif task.state != 'FAILURE':
-            response = {
-                'state': task.state,
-                'message': task.info.get('message', '')
-            }
             if 'result' in task.info:
                 # Redirect to analysis task results
-                return None, 303, {'Location': url_for('analyses_get', task_id=task.id)}
+                response = None, 303, {'Location': url_for('analyses_get', task_id=task.id)}
+            else:
+                response = {'state': task.state,
+                            'message': task.info.get('message', '')}
         else:
-            response = {
-                'state': task.state,
-                'message': str(task.info),  # Error message
-            }
+            response = {'state': task.state,
+                        'message': task.info, }  # Error message
         return response
-

@@ -1,4 +1,4 @@
-from core import celery, app
+from core import celery
 import autostatistical
 from glob import glob
 import os.path
@@ -7,9 +7,15 @@ import shutil
 
 @celery.task(bind=True)
 def do_analysis(self, catchment_fp):
-    """Background OH Auto Statistical analysis task."""
+    """
+    Background OH Auto Statistical analysis task.
+
+    :param catchment_fp: Filepath for catchment file
+    :type catchment_fp: str
+    :return: Dict with analysis report (Markdown) in `result` key.
+    :rtype: dict
+    """
     work_folder = os.path.dirname(catchment_fp)
-    # self.update_state(state='PROGRESS')
 
     try:
         analysis = autostatistical.Analysis(catchment_fp)
@@ -23,6 +29,6 @@ def do_analysis(self, catchment_fp):
             result = result_f.read()
         return {'message': '', 'result': result}
     except Exception as e:
-        return {'message': str(e)}
+        raise  # Celery handles errors
     finally:
         shutil.rmtree(work_folder)
