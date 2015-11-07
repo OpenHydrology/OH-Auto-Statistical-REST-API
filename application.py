@@ -4,6 +4,8 @@ from celery import Celery
 from resources.analysis import AnalysisRes, AnalysisStatusRes
 from resources.catchment import CatchmentListRes, CatchmentRes
 import floodestimation
+import floodestimation.loaders
+import floodestimation.fehdata
 import os
 
 
@@ -20,11 +22,7 @@ class Application(object):
 
         self.debug = debug
         self._set_routes()
-        try:
-            os.mkdir(self.flask_app.config['ANALYSIS_FOLDER'])
-        except OSError:
-            pass
-
+        self._setup_tasks()
 
     def _set_routes(self):
         self.rest_api.add_resource(AnalysisRes,       '/api/v0/analyses/', endpoint='analyses_post')
@@ -59,6 +57,18 @@ class Application(object):
         celery.Task = ContextTask
 
         return celery
+
+    def _setup_tasks(self):
+        try:
+            os.mkdir(self.flask_app.config['ANALYSIS_FOLDER'])
+        except OSError:
+            pass
+
+        if floodestimation.fehdata.update_available():
+            self.db.empty_db_tables()
+            db_session = self.db.Session()
+            floodestimation.loaders.nrfa_to_db(db_session, autocommit=True, incl_pot=False)
+            db_session.close()
 
     def start_app(self):
         self.flask_app.run(debug=self.debug)
