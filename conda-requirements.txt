@@ -5,4 +5,4 @@ flask=0.10.*
 flask-restful=0.3.4
 
 # channel: openhydrology
-autostatistical=0.8.0
+autostatistical=0.7.0
