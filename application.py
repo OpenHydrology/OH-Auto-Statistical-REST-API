@@ -4,6 +4,7 @@ from celery import Celery
 from resources.analysis import AnalysisRes, AnalysisStatusRes
 from resources.catchment import CatchmentListRes, CatchmentRes
 import floodestimation
+import os
 
 
 class Application(object):
@@ -19,6 +20,11 @@ class Application(object):
 
         self.debug = debug
         self._set_routes()
+        try:
+            os.mkdir(self.flask_app.config['ANALYSIS_FOLDER'])
+        except OSError:
+            pass
+
 
     def _set_routes(self):
         self.rest_api.add_resource(AnalysisRes,       '/api/v0/analyses/', endpoint='analyses_post')
