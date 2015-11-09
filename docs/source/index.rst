@@ -6,6 +6,10 @@ Version |version|
 
 .. _api/doc:
 
+
+Analyses
+--------
+
 .. http:post:: /api/v0/analyses/
     :synopsis: Submits an OH Auto Statistical analysis.
 
@@ -35,14 +39,12 @@ Version |version|
 
         HTTP/1.0 202 ACCEPTED
         Content-Type: application/json
-        Content-Length: 5
+        Content-Length: 3
         Location: http://localhost:5000/api/v0/analysis-tasks/124cce24-b02f-4ad8-9475-e8826fb4e655
         Server: Werkzeug/0.10.4 Python/3.4.3
         Date: Thu, 05 Nov 2015 17:45:04 GMT
 
-        null
-
-.. http:post:: /api/v0/analyses/(task_id)
+.. http:get:: /api/v0/analyses/(task_id)
     :synopsis: Returns an OH Auto Statistical analysis.
 
     Returns the OH Auto Statistical analysis report as Markdown-formatted text using the completed task's ``task_id``.
@@ -77,6 +79,9 @@ Version |version|
         (...)
 
 
+Analysis tasks
+--------------
+
 .. http:get:: /api/v0/analysis-tasks/(task_id)
     :synopsis: Returns the analysis status or redirects to the analysis report when completed
 
@@ -86,6 +91,7 @@ Version |version|
     :param task_id: Task identifier
 
     :resheader Content-Type: :mimetype:`application/json`
+    :resheader Location: URL to retrieve task results (when completed)
 
     :statuscode 200: Status successfully returned
     :statuscode 303: Redirect to ``/api/v0/analyses/(task_id)``
@@ -119,7 +125,7 @@ Version |version|
 
         HTTP/1.0 303 OK
         Content-Type: application/json
-        Content-Length: 0
+        Content-Length: 3
         Location: http://localhost:5000/api/v0/analysis/124cce24-b02f-4ad8-9475-e8826fb4e655
         Server: Werkzeug/0.10.4 Python/3.4.3
-        Date: Thu, 05 Nov 2015 20:06:26 GMT
+        Date: Thu, 05 Nov 2015 20:06:30 GMT
