@@ -1,2 +1,3 @@
+# Add conda channels here
 https://conda.anaconda.org/faph
 https://conda.anaconda.org/openhydrology
