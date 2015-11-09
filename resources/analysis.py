@@ -41,7 +41,7 @@ class AnalysisRes(Resource):
         task = core.tasks.do_analysis.delay(catchment_fp)
 
         # Return status URL
-        return None, 202, {'Location': url_for('analysis_status', task_id=task.id)}
+        return '', 202, {'Location': url_for('analysis_status', task_id=task.id)}
 
     def get(self, task_id):
         """Return the results of the analysis task"""
@@ -64,7 +64,7 @@ class AnalysisStatusRes(Resource):
         elif task.state != 'FAILURE':
             if 'result' in task.info:
                 # Redirect to analysis task results
-                response = None, 303, {'Location': url_for('get_analysis', task_id=task.id)}
+                response = '', 303, {'Location': url_for('get_analysis', task_id=task.id)}
             else:
                 response = {'state': task.state,
                             'message': task.info.get('message', '')}
