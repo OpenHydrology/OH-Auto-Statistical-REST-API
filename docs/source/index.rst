@@ -36,33 +36,27 @@ Version |version|
         HTTP/1.0 202 ACCEPTED
         Content-Type: application/json
         Content-Length: 5
-        Location: http://localhost:5000/api/v0/analyses_status/124cce24-b02f-4ad8-9475-e8826fb4e655
+        Location: http://localhost:5000/api/v0/analysis-tasks/124cce24-b02f-4ad8-9475-e8826fb4e655
         Server: Werkzeug/0.10.4 Python/3.4.3
         Date: Thu, 05 Nov 2015 17:45:04 GMT
 
         null
 
+.. http:post:: /api/v0/analyses/(task_id)
+    :synopsis: Returns an OH Auto Statistical analysis.
 
-.. http:get:: /api/v0/analyses_status/(task_id)
-    :synopsis: Returns analysis status or the OH Auto Statistical report when completed
-
-    If the analysis task is not yet completed the task's status is returned (json). Otherwise the analysis report itself
-    is returned.
+    Returns the OH Auto Statistical analysis report as Markdown-formatted text using the completed task's ``task_id``.
+    Note that this endpoint does not need to be called explicitly as the task status will redirect to here.
 
     :param task_id: Task identifier
 
-    :resheader Content-Type: - :mimetype:`application/json`
-                             - :mimetype:`text/plain; charset=utf-8`
+    :resheader Content-Type: - :mimetype:`text/plain; charset=utf-8` (analysis report)
+                             - :mimetype:`application/json` (error message)
 
-    **Request**:
+    :statuscode 200: Report successfully returned
+    :statuscode 404: Not a completed analysis task for ``task_id``
 
-    .. code-block:: http
-
-        GET api/v0/analyses_status/124cce24-b02f-4ad8-9475-e8826fb4e655 HTTP/1.0
-        Accept: */*
-        Host: localhost:5000
-
-    **Response (task completed)**:
+    **Response**:
 
     .. code-block:: http
 
@@ -82,6 +76,28 @@ Version |version|
         River:         Urr
         (...)
 
+
+.. http:get:: /api/v0/analysis-tasks/(task_id)
+    :synopsis: Returns the analysis status or redirects to the analysis report when completed
+
+    If the analysis task is not yet completed the task's status is returned (json). Otherwise redirects to the analysis
+    report itself.
+
+    :param task_id: Task identifier
+
+    :resheader Content-Type: :mimetype:`application/json`
+
+    :statuscode 200: Status successfully returned
+    :statuscode 303: Redirect to ``/api/v0/analyses/(task_id)``
+
+    **Request**:
+
+    .. code-block:: http
+
+        GET api/v0/analysis-tasks/124cce24-b02f-4ad8-9475-e8826fb4e655 HTTP/1.0
+        Accept: */*
+        Host: localhost:5000
+
     **Response (task in progress)**:
 
     .. code-block:: http
@@ -96,3 +112,14 @@ Version |version|
             "message": "",
             "state": "PROGRESS"
         }
+
+    **Response (task completed)**:
+
+    .. code-block:: http
+
+        HTTP/1.0 303 OK
+        Content-Type: application/json
+        Content-Length: 0
+        Location: http://localhost:5000/api/v0/analysis/124cce24-b02f-4ad8-9475-e8826fb4e655
+        Server: Werkzeug/0.10.4 Python/3.4.3
+        Date: Thu, 05 Nov 2015 20:06:26 GMT
