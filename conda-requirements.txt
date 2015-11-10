@@ -1,8 +1,0 @@
-python=3.4.*
-flask=0.10.*
-
-# channel: faph
-flask-restful=0.3.4
-
-# channel: openhydrology
-autostatistical=0.7.0
