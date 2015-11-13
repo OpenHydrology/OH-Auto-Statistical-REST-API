@@ -6,6 +6,7 @@ channels:
 
 dependencies:
 - python=3.4.*
+- psycopg2
 - flask=0.10.*
 - flask-restful=0.3.4
 - autostatistical=0.8.0

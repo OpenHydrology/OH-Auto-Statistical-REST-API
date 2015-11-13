@@ -7,6 +7,9 @@ import floodestimation
 import floodestimation.loaders
 import floodestimation.fehdata
 import os
+from sqlalchemy import create_engine
+from sqlalchemy.schema import MetaData
+from sqlalchemy.orm import sessionmaker
 
 
 class Application(object):
@@ -18,11 +21,15 @@ class Application(object):
         self.rest_api = flask_restful.Api(self.flask_app)
 
         self.db = floodestimation.db
+        self.db.engine = create_engine(os.environ["DATABASE_URL"])
+        self.db.metadata = MetaData(bind=self.db.engine, reflect=True)
+        #self.db.create_db_tables()
+        self.db.Session = sessionmaker(bind=self.db.engine)
         self._set_db_session()
 
         self.debug = debug
         self._set_routes()
-        self._setup_tasks()
+        #self._setup_tasks()
 
     def _set_routes(self):
         self.rest_api.add_resource(AnalysisRes,       '/api/v0/analyses/',                endpoint='post_analysis')
@@ -64,7 +71,7 @@ class Application(object):
         except OSError:
             pass
 
-        if floodestimation.fehdata.update_available():
+        if floodestimation.fehdata.update_available():  # that's only from config file, don't use
             self.db.empty_db_tables()
             db_session = self.db.Session()
             floodestimation.loaders.nrfa_to_db(db_session, autocommit=True, incl_pot=False)
