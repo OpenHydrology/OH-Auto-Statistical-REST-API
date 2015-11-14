@@ -69,7 +69,7 @@ class Application(object):
 
     def _setup_tasks(self):
         try:
-            os.mkdir(self.flask_app.config['ANALYSIS_FOLDER'])
+            os.makedirs(self.flask_app.config['ANALYSIS_FOLDER'], exist_ok=True)
         except OSError:
             pass
 
