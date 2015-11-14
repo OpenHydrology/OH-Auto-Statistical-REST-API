@@ -15,20 +15,21 @@ class AnalysisRes(Resource):
         Requires a catchment file (.cd3 or .xml) to be posted, and optionally an AMAX file (.am).
         """
         files = list(request.files.values())
-        print([f.filename for f in files])
         if len(files) < 1:
             return {'message': "Catchment file (.cd3 or .xml) required."}, 400
         elif len(files) > 2:
             return {'message': "Too many files supplied."}, 400
         else:
-            catchment_file = [f for f in files if os.path.splitext(f.filename)[1].lower() in ['.cd3', '.xml']][0]
-            catchment_ext = os.path.splitext(catchment_file.filename)[1].lower()
-            amax_file = None
-            if not catchment_file:
+            try:
+                catchment_file = [f for f in files if os.path.splitext(f.filename)[1].lower() in ['.cd3', '.xml']][0]
+                catchment_ext = os.path.splitext(catchment_file.filename)[1].lower()
+            except IndexError:
                 return {'message': "Catchment file (.cd3 or .xml) required."}, 400
+            amax_file = None
             if len(files) == 2:
-                amax_file = [f for f in files if os.path.splitext(f.filename)[1].lower() == '.am'][0]
-                if not amax_file:
+                try:
+                    amax_file = [f for f in files if os.path.splitext(f.filename)[1].lower() == '.am'][0]
+                except IndexError:
                     return {'message': "Second file must be AMAX (.am) file."}, 400
 
         # Save input files to a working folder
