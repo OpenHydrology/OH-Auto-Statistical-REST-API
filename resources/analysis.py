@@ -15,6 +15,7 @@ class AnalysisRes(Resource):
         Requires a catchment file (.cd3 or .xml) to be posted, and optionally an AMAX file (.am).
         """
         files = list(request.files.values())
+        print([f.filename for f in files])
         if len(files) < 1:
             return {'message': "Catchment file (.cd3 or .xml) required."}, 400
         elif len(files) > 2:
