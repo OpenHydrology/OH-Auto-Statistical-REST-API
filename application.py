@@ -1,5 +1,6 @@
 import flask
 import flask_restful
+import flask.ext.cors
 from celery import Celery
 from resources.analysis import AnalysisRes, AnalysisStatusRes
 from resources.catchment import CatchmentListRes, CatchmentRes
@@ -17,6 +18,7 @@ class Application(object):
     def __init__(self, config, debug=True):
         self.flask_app = flask.Flask(__name__)
         self.flask_app.config.from_object('settings')
+        flask.ext.cors.CORS(self.flask_app, resources=r'/api/*', allow_headers='Content-Type')
 
         self.rest_api = flask_restful.Api(self.flask_app)
 
