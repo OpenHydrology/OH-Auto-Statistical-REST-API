@@ -31,7 +31,7 @@ class Application(object):
 
         self.debug = debug
         self._set_routes()
-        #self._setup_tasks()
+        self._setup_tasks()
 
     def _set_routes(self):
         self.rest_api.add_resource(AnalysisRes,       '/api/v0/analyses/',                endpoint='post_analysis')
@@ -73,11 +73,11 @@ class Application(object):
         except OSError:
             pass
 
-        if floodestimation.fehdata.update_available():  # that's only from config file, don't use
-            self.db.empty_db_tables()
-            db_session = self.db.Session()
-            floodestimation.loaders.nrfa_to_db(db_session, autocommit=True, incl_pot=False)
-            db_session.close()
+        # if floodestimation.fehdata.update_available():  # that's only from config file, don't use
+        #     self.db.empty_db_tables()
+        #     db_session = self.db.Session()
+        #     floodestimation.loaders.nrfa_to_db(db_session, autocommit=True, incl_pot=False)
+        #     db_session.close()
 
     def start_app(self):
         self.flask_app.run(debug=self.debug)
