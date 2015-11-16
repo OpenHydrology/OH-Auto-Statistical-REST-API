@@ -18,7 +18,8 @@ class Application(object):
     def __init__(self, config, debug=True):
         self.flask_app = flask.Flask(__name__)
         self.flask_app.config.from_object('settings')
-        flask.ext.cors.CORS(self.flask_app, resources=r'/api/*', allow_headers='Content-Type')
+        flask.ext.cors.CORS(self.flask_app, resources=r'/api/*', allow_headers=['Content-Type'],
+                            expose_headers=['Location'])
 
         self.rest_api = flask_restful.Api(self.flask_app)
 
