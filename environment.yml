@@ -8,7 +8,7 @@ channels:
 dependencies:
 - python=3.4.*
 - appdirs
-- floodestimation=0.6.0=np19py34_5
+- floodestimation=0.6.1
 - jinja2
 - psycopg2
 - flask=0.10.*
