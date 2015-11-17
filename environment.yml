@@ -3,10 +3,12 @@ name: env
 channels:
 - https://conda.anaconda.org/faph
 - https://conda.anaconda.org/openhydrology
+- https://conda.anaconda.org/openhydrology/channel/dev
 
 dependencies:
 - python=3.4.*
 - appdirs
+- floodestimation=0.6.0=np19py34_5
 - jinja2
 - psycopg2
 - flask=0.10.*
