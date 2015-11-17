@@ -93,7 +93,6 @@ class Report(object):
     def get_content(self):
         return self.template.render(self.context)
 
-]
 class TemplateEnvironment(jj.Environment):
     """
     A jinja2 template environment with loader and filters setup.
