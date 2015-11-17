@@ -93,6 +93,7 @@ class Report(object):
     def get_content(self):
         return self.template.render(self.context)
 
+
 class TemplateEnvironment(jj.Environment):
     """
     A jinja2 template environment with loader and filters setup.
@@ -103,7 +104,7 @@ class TemplateEnvironment(jj.Environment):
 
         # Load templates from within the package
         self.loader = jj.ChoiceLoader([
-            jj.FileSystemLoader(os.path.dirname(__file__))
+            jj.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates'))
         ])
 
         # Custom formatting filters
