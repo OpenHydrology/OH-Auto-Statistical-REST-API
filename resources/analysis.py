@@ -55,16 +55,13 @@ class AnalysisStatusRes(Resource):
         task = core.tasks.do_analysis.AsyncResult(task_id)
 
         if task.state == 'PENDING':
-            response = {'state': task.state,
-                        'message': 'Pending...'}
+            response = {'state': task.state, 'message': ''}
         elif task.state != 'FAILURE':
             if 'result' in task.info:
                 # Redirect to analysis task results
                 response = '', 303, {'Location': url_for('get_analysis', task_id=task.id)}
             else:
-                response = {'state': task.state,
-                            'message': task.info.get('message', '')}
+                response = {'state': task.state, 'message': task.info.get('message', '')}
         else:
-            response = {'state': task.state,
-                        'message': task.info, }  # Error message
+            response = {'state': task.state, 'message': '', }
         return response

@@ -17,6 +17,7 @@ def do_analysis(self, catchment_str, catchment_ext, amax_str=None):
     :return: Dict with analysis report (Markdown) in `result` key.
     :rtype: dict
     """
+    self.update_state(state='PROGRESS', meta={'message': ''})
     try:
         db_session = db.Session()
         parser_by_ext = {
