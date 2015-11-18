@@ -32,15 +32,9 @@ class AnalysisRes(Resource):
                 except IndexError:
                     return {'message': "Second file must be AMAX (.am) file."}, 400
 
-        # Save input files to a working folder
-        work_folder = tempfile.mkdtemp(dir=core.app.flask_app.config['ANALYSIS_FOLDER'])
-        catchment_fp = os.path.join(work_folder, 'catchment' + catchment_ext)
-        catchment_file.save(catchment_fp)
-        if amax_file:
-            amax_file.save(os.path.join(work_folder, 'catchment.am'))
-
-        # Task will pick up files from working folder
-        task = core.tasks.do_analysis.delay(catchment_fp)
+        catchment_str = catchment_file.read().decode('utf-8')
+        amax_str = amax_file.read().decode('utf-8') if amax_file else None
+        task = core.tasks.do_analysis.delay(catchment_str, catchment_ext, amax_str=amax_str)
 
         # Return status URL
         return '', 202, {'Location': url_for('analysis_status', task_id=task.id)}

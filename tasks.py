@@ -1,25 +1,35 @@
 from core import celery, db
 import autostatisticalweb
+from floodestimation import parsers
 from glob import glob
 import os.path
 import shutil
 
 
 @celery.task(bind=True)
-def do_analysis(self, catchment_fp):
+def do_analysis(self, catchment_str, catchment_ext, amax_str=None):
     """
     Background OH Auto Statistical analysis task.
 
-    :param catchment_fp: Filepath for catchment file
-    :type catchment_fp: str
+    :param catchment_str: Catchment file content
+    :type catchment_str: str
+    :param catchment_ext: Extension of catchment file (.xml or .cd3)
+    :type catchment_ext: str
+    :param amax_str: Amax file content
+    :type amax_str: str
     :return: Dict with analysis report (Markdown) in `result` key.
     :rtype: dict
     """
-    work_folder = os.path.dirname(catchment_fp)
-
     try:
         db_session = db.Session()
-        analysis = autostatisticalweb.Analysis(catchment_fp, db_session)
+        parser_by_ext = {
+            '.cd3': parsers.Cd3Parser,
+            '.xml': parsers.XmlCatchmentParser
+        }
+        catchment = parser_by_ext[catchment_ext]().parse_str(catchment_str)
+        if amax_str:
+            catchment.amax_records = parsers.AmaxParser().parse_str(amax_str)
+        analysis = autostatisticalweb.Analysis(catchment, db_session)
         result = analysis.run()
 
         return {'message': '', 'result': result}
@@ -28,4 +38,3 @@ def do_analysis(self, catchment_fp):
     finally:
         if db_session:
             db_session.close()
-        shutil.rmtree(work_folder)

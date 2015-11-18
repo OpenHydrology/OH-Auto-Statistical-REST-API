@@ -2,7 +2,6 @@
 
 import os.path
 from datetime import date
-from floodestimation import loaders
 from floodestimation.collections import CatchmentCollections
 from floodestimation.analysis import QmedAnalysis, GrowthCurveAnalysis
 import math
@@ -16,15 +15,9 @@ class Analysis(object):
     Analysis and report creation object.
 
     """
-    def __init__(self, catchment_file, db_session):
-        #: Path to catchment file
-        self.catchment_file = catchment_file
-        #: Name of analysis/catchment based on file name
-        self.name = os.path.basename(os.path.splitext(catchment_file)[0])
-        #: Working folder
-        self.folder = os.path.dirname(catchment_file)
+    def __init__(self, catchment, db_session):
         #: :class:`floodestimation.entities.Catchment` object
-        self.catchment = None
+        self.catchment = catchment
         #: Database session
         self.db_session = db_session
         #: Gauged catchments collection
@@ -39,7 +32,6 @@ class Analysis(object):
     def _load_data(self):
         self.results['report_date'] = date.today()
         self.results['version'] = '0.0.0'
-        self.catchment = loaders.from_file(self.catchment_file)
         self.results['catchment'] = self.catchment
         self.gauged_catchments = CatchmentCollections(self.db_session, load_data='manual')
 
@@ -74,13 +66,12 @@ class Analysis(object):
         self.results['gc'] = results
 
     def _create_report(self):
-        rep = Report(self.name, self.results, template_name='normal.md')
+        rep = Report(self.results, template_name='normal.md')
         return rep.get_content()
 
 
 class Report(object):
-    def __init__(self, name, context, template_name):
-        self.name = name
+    def __init__(self, context, template_name):
         self.context = context
         self.template_name = template_name
         self.template_extension = os.path.splitext(template_name)[1]

@@ -32,7 +32,7 @@ class Application(object):
 
         self.debug = debug
         self._set_routes()
-        self._setup_tasks()
+        #self._setup_tasks()
 
     def _set_routes(self):
         self.rest_api.add_resource(AnalysisRes,       '/api/v0/analyses/',                endpoint='post_analysis')
@@ -68,11 +68,11 @@ class Application(object):
 
         return celery
 
-    def _setup_tasks(self):
-        try:
-            os.makedirs(self.flask_app.config['ANALYSIS_FOLDER'], exist_ok=True)
-        except OSError:
-            pass
+    #def _setup_tasks(self):
+        #try:
+        #    os.makedirs(self.flask_app.config['ANALYSIS_FOLDER'], exist_ok=True)
+        #except OSError:
+        #    pass
 
         # if floodestimation.fehdata.update_available():  # that's only from config file, don't use
         #     self.db.empty_db_tables()

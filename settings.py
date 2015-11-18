@@ -15,5 +15,3 @@ CELERY_TASK_SERIALIZER        = 'json'
 CELERY_RESULT_SERIALIZER      = 'json'
 CELERY_DISABLE_RATE_LIMITS    = True
 CELERY_IMPORTS                = ['tasks']
-
-ANALYSIS_FOLDER               = os.path.join(data_folder, 'work')
