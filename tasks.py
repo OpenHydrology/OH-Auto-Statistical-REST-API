@@ -1,9 +1,6 @@
 from core import celery, db
 import autostatisticalweb
 from floodestimation import parsers
-from glob import glob
-import os.path
-import shutil
 
 
 @celery.task(bind=True)
