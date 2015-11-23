@@ -1,6 +1,7 @@
 from core import celery, db
 import autostatisticalweb
 from floodestimation import parsers
+from floodestimation import entities
 
 
 @celery.task(bind=True)
@@ -28,6 +29,25 @@ def do_analysis(self, catchment_str, amax_str=None):
         catchment = parser_by_ext[ext]().parse_str(catchment_str)
         if amax_str:
             catchment.amax_records = parsers.AmaxParser().parse_str(amax_str)
+        analysis = autostatisticalweb.Analysis(catchment, db_session)
+        result = analysis.run()
+
+        return {'message': '', 'result': result}
+    except Exception as e:
+        raise  # Celery handles errors
+    finally:
+        if db_session:
+            db_session.close()
+
+
+@celery.task(bind=True)
+def do_analysis_from_id(self, catchment_id):
+    self.update_state(state='PROGRESS', meta={'message': ''})
+    try:
+        db_session = db.Session()
+        catchment = db_session.query(entities.Catchment).get(catchment_id)
+        if catchment is None:
+            raise ValueError("Catchment with id `{}` does not exist.".format(catchment_id))
         analysis = autostatisticalweb.Analysis(catchment, db_session)
         result = analysis.run()
 

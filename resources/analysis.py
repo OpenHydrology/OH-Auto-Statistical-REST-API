@@ -14,26 +14,30 @@ class AnalysisRes(Resource):
 
         Requires a catchment file (.cd3 or .xml) to be posted, and optionally an AMAX file (.am).
         """
-        files = list(f for f in request.files.values() if f)  # filter out empty file input fields
-        if len(files) < 1:
-            return {'message': "Catchment file (.cd3 or .xml) required."}, 400
-        elif len(files) > 2:
-            return {'message': "Too many files supplied."}, 400
-        else:
-            try:
-                catchment_file = [f for f in files if os.path.splitext(f.filename)[1].lower() in ['.cd3', '.xml']][0]
-            except IndexError:
+        try:
+            catchment_id = int(request.form['nrfa-id'])
+            task = core.tasks.do_analysis_from_id.delay(catchment_id)
+        except (KeyError, ValueError):
+            files = list(f for f in request.files.values() if f)  # filter out empty file input fields
+            if len(files) < 1:
                 return {'message': "Catchment file (.cd3 or .xml) required."}, 400
-            amax_file = None
-            if len(files) == 2:
+            elif len(files) > 2:
+                return {'message': "Too many files supplied."}, 400
+            else:
                 try:
-                    amax_file = [f for f in files if os.path.splitext(f.filename)[1].lower() == '.am'][0]
+                    catchment_file = [f for f in files if os.path.splitext(f.filename)[1].lower() in ['.cd3', '.xml']][0]
                 except IndexError:
-                    return {'message': "Second file must be AMAX (.am) file."}, 400
+                    return {'message': "Catchment file (.cd3 or .xml) required."}, 400
+                amax_file = None
+                if len(files) == 2:
+                    try:
+                        amax_file = [f for f in files if os.path.splitext(f.filename)[1].lower() == '.am'][0]
+                    except IndexError:
+                        return {'message': "Second file must be AMAX (.am) file."}, 400
 
-        catchment_str = catchment_file.read().decode('utf-8')
-        amax_str = amax_file.read().decode('utf-8') if amax_file else None
-        task = core.tasks.do_analysis.delay(catchment_str, amax_str=amax_str)
+            catchment_str = catchment_file.read().decode('utf-8')
+            amax_str = amax_file.read().decode('utf-8') if amax_file else None
+            task = core.tasks.do_analysis.delay(catchment_str, amax_str=amax_str)
 
         # Return status URL
         return '', 202, {'Location': url_for('analysis_status', _external=True, _scheme='https', task_id=task.id)}
