@@ -1,6 +1,5 @@
 import os
 
-PREFERRED_URL_SCHEME       = 'https'
 BROKER_URL                 = os.environ["CLOUDAMQP_URL"]
 CELERY_RESULT_BACKEND      = 'db+' + os.environ["DATABASE_URL"]
 CELERYD_CONCURRENCY        = 1
