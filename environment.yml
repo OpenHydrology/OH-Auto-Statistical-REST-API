@@ -6,7 +6,6 @@ channels:
 
 dependencies:
 - python=3.4.*
-- appdirs
 - floodestimation=0.7.0
 - jinja2
 - psycopg2
