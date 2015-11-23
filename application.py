@@ -7,7 +7,6 @@ from resources.catchment import CatchmentListRes, CatchmentRes
 import floodestimation
 import floodestimation.loaders
 import floodestimation.fehdata
-import os
 from sqlalchemy import create_engine
 from sqlalchemy.schema import MetaData
 from sqlalchemy.orm import sessionmaker
