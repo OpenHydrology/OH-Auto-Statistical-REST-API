@@ -15,5 +15,3 @@ dependencies:
   - gunicorn
   - celery
   - flask-cors
-  - Flask-SSLify
-

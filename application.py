@@ -10,7 +10,6 @@ import floodestimation.fehdata
 from sqlalchemy import create_engine
 from sqlalchemy.schema import MetaData
 from sqlalchemy.orm import sessionmaker
-from flask_sslify import SSLify
 
 
 class Application(object):
@@ -18,7 +17,6 @@ class Application(object):
     def __init__(self, config, debug=True):
         self.flask_app = flask.Flask(__name__)
         self.flask_app.config.from_object('settings')
-        sslify = SSLify(self.flask_app)
         flask.ext.cors.CORS(self.flask_app, resources=r'/api/*', allow_headers=['Content-Type'],
                             expose_headers=['Location'])
 
