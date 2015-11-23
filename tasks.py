@@ -4,7 +4,7 @@ from floodestimation import parsers
 
 
 @celery.task(bind=True)
-def do_analysis(self, catchment_str, catchment_ext, amax_str=None):
+def do_analysis(self, catchment_str, amax_str=None):
     """
     Background OH Auto Statistical analysis task.
 
@@ -24,7 +24,8 @@ def do_analysis(self, catchment_str, catchment_ext, amax_str=None):
             '.cd3': parsers.Cd3Parser,
             '.xml': parsers.XmlCatchmentParser
         }
-        catchment = parser_by_ext[catchment_ext]().parse_str(catchment_str)
+        ext = '.xml' if is_xml(catchment_str) else '.cd3'
+        catchment = parser_by_ext[ext]().parse_str(catchment_str)
         if amax_str:
             catchment.amax_records = parsers.AmaxParser().parse_str(amax_str)
         analysis = autostatisticalweb.Analysis(catchment, db_session)
@@ -36,3 +37,15 @@ def do_analysis(self, catchment_str, catchment_ext, amax_str=None):
     finally:
         if db_session:
             db_session.close()
+
+
+def is_xml(s):
+    """
+    Returns whether a string is xml
+
+    :param s: string to test
+    :type s: str
+    :return: True if string is xml
+    :rtype: bool
+    """
+    return s.startswith('<')

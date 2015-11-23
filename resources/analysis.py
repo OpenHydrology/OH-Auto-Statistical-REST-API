@@ -22,7 +22,6 @@ class AnalysisRes(Resource):
         else:
             try:
                 catchment_file = [f for f in files if os.path.splitext(f.filename)[1].lower() in ['.cd3', '.xml']][0]
-                catchment_ext = os.path.splitext(catchment_file.filename)[1].lower()
             except IndexError:
                 return {'message': "Catchment file (.cd3 or .xml) required."}, 400
             amax_file = None
@@ -34,7 +33,7 @@ class AnalysisRes(Resource):
 
         catchment_str = catchment_file.read().decode('utf-8')
         amax_str = amax_file.read().decode('utf-8') if amax_file else None
-        task = core.tasks.do_analysis.delay(catchment_str, catchment_ext, amax_str=amax_str)
+        task = core.tasks.do_analysis.delay(catchment_str, amax_str=amax_str)
 
         # Return status URL
         return '', 202, {'Location': url_for('analysis_status', _external=True, _scheme='https', task_id=task.id)}
