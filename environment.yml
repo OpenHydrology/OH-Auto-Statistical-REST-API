@@ -13,5 +13,5 @@ dependencies:
 - flask-restful=0.3.4
 - pip:
   - gunicorn
-  - celery
+  - celery[redis]
   - flask-cors
