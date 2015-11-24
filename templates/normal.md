@@ -1,18 +1,17 @@
 # Flood Estimation Report
 
 Date:          {{ report_date|default(None)|dateformat }}  
-Software:      OH Auto Statistical web
+Software:      OH Auto Statistical
 
 ## Input data
 
 River:         {{ catchment.watercourse|default("Unknown") }}  
 Location:      {{ catchment.location|default("Unknown") }}  
+Station №:     {{ catchment.location|default("N/A") }}  
 NGR outlet:    {{ catchment.point.x }}, {{ catchment.point.y }}    
 NGR centroid:  {{ catchment.descriptors.centroid_ngr.x }}, {{ catchment.descriptors.centroid_ngr.y }}  
 
 ### Catchment descriptors
-
-Source:        CEH (2009)
 
 Descriptor   |      Value | Descriptor  |      Value | Descriptor  |      Value 
 :------------|-----------:|:------------|-----------:|:------------|----------:
@@ -95,8 +94,6 @@ AEP (%) | Growth factor | Flow (m³/s)
 {% endfor %}
 
 ## References
-
-CEH (2009). FEH CD-ROM 3 (Software). Wallingford: Centre for Ecology & Hydrology.
 
 Kjeldsen, T. R., Jones, D. A. & Bayliss, A. C. (2008). *Improving the FEH statistical procedures for flood frequency 
 estimation* (No. SC050050). Bristol: Environment Agency.
