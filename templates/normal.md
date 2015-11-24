@@ -7,7 +7,7 @@ Software:      OH Auto Statistical
 
 River:         {{ catchment.watercourse|default("Unknown") }}  
 Location:      {{ catchment.location|default("Unknown") }}  
-Station №:     {{ catchment.location|default("N/A") }}  
+Station №:     {{ catchment.id|default("N/A") }}  
 NGR outlet:    {{ catchment.point.x }}, {{ catchment.point.y }}    
 NGR centroid:  {{ catchment.descriptors.centroid_ngr.x }}, {{ catchment.descriptors.centroid_ngr.y }}  
 
