@@ -182,6 +182,15 @@ class TemplateEnvironment(jj.Environment):
 
     @staticmethod
     def signifcolumn(value, significance=2, width=12, sep_pos=None):
+        """
+        Formats a floating point number within fixed-with column using specified significant digits
+
+        :param value: numeric value to be formatted
+        :param significance: number of significant digits, default: 2 digits
+        :param width: Column width, default: 12 characters
+        :param sep_pos: Position of the decimal point within the column
+        :return: Formatted string
+        """
         order = math.floor(math.log10(value))
         decimals = max(0, significance - order - 1)
         rounded_value = round(value, significance - order - 1)
@@ -189,6 +198,13 @@ class TemplateEnvironment(jj.Environment):
 
     @staticmethod
     def intcolumn(value, width=12):
+        """
+        Formats an integer within fixed-with column, right-aligned
+
+        :param value: integer value to be formatted
+        :param width: Column width, default: 12 characters
+        :return: Formatted string
+        """
         try:
             return "{value:>{width:d}.0f}".format(value=value, width=width)
         except (ValueError, TypeError):
@@ -196,6 +212,13 @@ class TemplateEnvironment(jj.Environment):
 
     @staticmethod
     def strcolumn(value, width=25):
+        """
+        Formats a string within fixed-with column, left-aligned
+
+        :param value: string value to be formatted
+        :param width: Column width, default: 25 characters
+        :return: Formatted string
+        """
         try:
             return "{value:<{width:d}s}".format(value=value, width=width)
         except (ValueError, TypeError):
