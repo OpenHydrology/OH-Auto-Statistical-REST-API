@@ -9,10 +9,8 @@ def do_analysis(self, catchment_str, amax_str=None):
     """
     Background OH Auto Statistical analysis task.
 
-    :param catchment_str: Catchment file content
+    :param catchment_str: Catchment file content (either in xml or cd3 format)
     :type catchment_str: str
-    :param catchment_ext: Extension of catchment file (.xml or .cd3)
-    :type catchment_ext: str
     :param amax_str: Amax file content
     :type amax_str: str
     :return: Dict with analysis report (Markdown) in `result` key.
@@ -42,6 +40,14 @@ def do_analysis(self, catchment_str, amax_str=None):
 
 @celery.task(bind=True)
 def do_analysis_from_id(self, catchment_id):
+    """
+    Background OH Auto Statistical analysis task using a catchment from the database.
+
+    :param catchment_id: Catchment id (NRFA gauging station no.)
+    :type catchment_id: int
+    :return: Dict with analysis report (Markdown) in `result` key.
+    :rtype: dict
+    """
     self.update_state(state='PROGRESS', meta={'message': ''})
     try:
         db_session = db.Session()
