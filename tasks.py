@@ -2,7 +2,10 @@ from core import celery, db
 import autostatisticalweb
 from floodestimation import parsers
 from floodestimation import entities
+import os.path
 import requests
+import tempfile
+import zipfile
 
 
 @celery.task(bind=True)
@@ -75,14 +78,23 @@ def import_data(self, from_url):
     :type from_url: str`
     """
     self.update_state(state='PROGRESS', meta={'message': ''})
+    assert from_url.lower().endswith('.zip')
     try:
         db_session = db.Session()
-        local_filename = 'data.zip'
+        data_fn = 'data.zip'
         r = requests.get(from_url, stream=True)
-        with open(local_filename, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=1024):
-                if chunk:
-                    f.write(chunk)
+        with tempfile.TemporaryDirectory() as work_folder:
+            with open(os.path.join(work_folder, data_fn), 'wb') as data_f:
+                for chunk in r.iter_content(chunk_size=1024):
+                    if chunk:
+                        data_f.write(chunk)
+            with zipfile.ZipFile(os.path.join(work_folder, data_fn), 'r') as data_f:
+                cd3_and_am = [m for m in data_f.infolist()
+                              if os.path.splitext(m.filename)[1].lower() in ['.cd3', '.am']]
+                for member in cd3_and_am:
+                    member.filename = os.path.basename(member.filename)  # strip folder info, extract all files to root
+                    data_f.extract(member, path=work_folder)
+            pass
 
     except Exception as e:
         raise  # Celery handles errors

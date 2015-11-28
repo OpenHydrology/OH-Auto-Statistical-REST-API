@@ -17,7 +17,7 @@ class DataImportRes(Resource):
             from_url = data['url']
         except KeyError:
             raise BadRequest("JSON body must include `url` key.")
-        if not from_url.endswith('.zip'):
+        if not from_url.lower().endswith('.zip'):
             raise BadRequest("Download URL must be a .zip file. `{}` was provided.".format(from_url))
 
         core.tasks.import_data.delay(from_url)
