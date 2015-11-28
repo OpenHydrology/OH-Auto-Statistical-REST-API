@@ -6,7 +6,7 @@ channels:
 
 dependencies:
 - python=3.4.*
-- floodestimation=0.7.0
+- floodestimation=0.7.1
 - jinja2
 - psycopg2
 - flask=0.10.*
