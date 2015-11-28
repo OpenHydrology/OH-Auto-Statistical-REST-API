@@ -37,7 +37,7 @@ class Application(object):
         self.rest_api.add_resource(AnalysisStatusRes, '/api/v0/analysis-tasks/<task_id>', endpoint='analysis_status')
         self.rest_api.add_resource(CatchmentListRes,  '/api/v0/catchments/')
         self.rest_api.add_resource(CatchmentRes,      '/api/v0/catchments/<int:catchment_id>')
-        self.rest_api.add_resource(DataImportRes,     '/api/v0/data-import')
+        self.rest_api.add_resource(DataImportRes,     '/api/v0/data-import/')
 
     def _set_db_session(self):
         @self.flask_app.before_request
