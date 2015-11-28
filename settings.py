@@ -10,3 +10,8 @@ CELERY_DISABLE_RATE_LIMITS = True
 CELERY_IMPORTS             = ['tasks']
 
 DATABASE_URL               = os.environ["DATABASE_URL"]
+
+AUTH_CLIENT_ID             = os.environ["AUTH_CLIENT_ID"]
+AUTH_CLIENT_SECRET         = os.environ["AUTH_CLIENT_SECRET"]
+
+DATA_IMPORT_TOKEN          = os.environ["DATA_IMPORT_TOKEN"]

@@ -4,6 +4,7 @@ import flask.ext.cors
 from celery import Celery
 from resources.analysis import AnalysisRes, AnalysisStatusRes
 from resources.catchment import CatchmentListRes, CatchmentRes
+from resources.dataimport import DataImportRes
 import floodestimation
 import floodestimation.loaders
 import floodestimation.fehdata
@@ -13,11 +14,10 @@ from sqlalchemy.orm import sessionmaker
 
 
 class Application(object):
-
     def __init__(self, config, debug=True):
         self.flask_app = flask.Flask(__name__)
         self.flask_app.config.from_object('settings')
-        flask.ext.cors.CORS(self.flask_app, resources=r'/api/*', allow_headers=['Content-Type'],
+        flask.ext.cors.CORS(self.flask_app, resources=r'/api/*', allow_headers=['Content-Type', 'Authorization'],
                             expose_headers=['Location'])
 
         self.rest_api = flask_restful.Api(self.flask_app)
@@ -32,11 +32,12 @@ class Application(object):
         self._set_routes()
 
     def _set_routes(self):
-        self.rest_api.add_resource(AnalysisRes,       '/api/v0/analyses/',                endpoint='post_analysis')
-        self.rest_api.add_resource(AnalysisRes,       '/api/v0/analyses/<task_id>',       endpoint='get_analysis')
+        self.rest_api.add_resource(AnalysisRes,       '/api/v0/analyses/', endpoint='post_analysis')
+        self.rest_api.add_resource(AnalysisRes,       '/api/v0/analyses/<task_id>', endpoint='get_analysis')
         self.rest_api.add_resource(AnalysisStatusRes, '/api/v0/analysis-tasks/<task_id>', endpoint='analysis_status')
         self.rest_api.add_resource(CatchmentListRes,  '/api/v0/catchments/')
         self.rest_api.add_resource(CatchmentRes,      '/api/v0/catchments/<int:catchment_id>')
+        self.rest_api.add_resource(DataImportRes,     '/api/v0/data-import')
 
     def _set_db_session(self):
         @self.flask_app.before_request
@@ -58,12 +59,15 @@ class Application(object):
 
         class ContextTask(TaskBase):
             abstract = True
+
             def __call__(self, *args, **kwargs):
                 with app.app_context():
                     return TaskBase.__call__(self, *args, **kwargs)
+
         celery.Task = ContextTask
 
         return celery
 
     def start_app(self):
         self.flask_app.run(debug=self.debug)
+
