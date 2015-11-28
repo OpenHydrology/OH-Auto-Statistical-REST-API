@@ -2,6 +2,7 @@ from core import celery, db
 import autostatisticalweb
 from floodestimation import parsers
 from floodestimation import entities
+import requests
 
 
 @celery.task(bind=True)
@@ -58,6 +59,31 @@ def do_analysis_from_id(self, catchment_id):
         result = analysis.run()
 
         return {'message': '', 'result': result}
+    except Exception as e:
+        raise  # Celery handles errors
+    finally:
+        if db_session:
+            db_session.close()
+
+
+@celery.task(bind=True, ignore_result=True)
+def import_data(self, from_url):
+    """
+    Imports catchment and annual maximum flow data into the database
+
+    :param from_url: URL to pull data from (only zip files supported)
+    :type from_url: str`
+    """
+    self.update_state(state='PROGRESS', meta={'message': ''})
+    try:
+        db_session = db.Session()
+        local_filename = 'data.zip'
+        r = requests.get(from_url, stream=True)
+        with open(local_filename, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+
     except Exception as e:
         raise  # Celery handles errors
     finally:
