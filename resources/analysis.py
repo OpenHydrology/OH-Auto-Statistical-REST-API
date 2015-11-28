@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os.path
-import tempfile
 from flask_restful import Resource
-from flask import Response, url_for, abort, request
+from flask import Response, url_for, request
 import core
 
 
