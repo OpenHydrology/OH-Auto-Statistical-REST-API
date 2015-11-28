@@ -2,10 +2,12 @@ from core import celery, db
 import autostatisticalweb
 from floodestimation import parsers
 from floodestimation import entities
+from floodestimation import loaders
 import os.path
 import requests
 import tempfile
 import zipfile
+import glob
 
 
 @celery.task(bind=True)
@@ -94,9 +96,12 @@ def import_data(self, from_url):
                 for member in cd3_and_am:
                     member.filename = os.path.basename(member.filename)  # strip folder info, extract all files to root
                     data_f.extract(member, path=work_folder)
-            pass
+
+            loaders.folder_to_db(work_folder, db_session, method='update', incl_pot=False)
+            db_session.commit()
 
     except Exception as e:
+        db_session.rollback()
         raise  # Celery handles errors
     finally:
         if db_session:
