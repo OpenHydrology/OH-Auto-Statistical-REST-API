@@ -7,7 +7,6 @@ import os.path
 import requests
 import tempfile
 import zipfile
-import glob
 
 
 @celery.task(bind=True)
