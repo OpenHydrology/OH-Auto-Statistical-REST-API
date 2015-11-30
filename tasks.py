@@ -76,7 +76,7 @@ def import_data(self, from_url):
     Imports catchment and annual maximum flow data into the database
 
     :param from_url: URL to pull data from (only zip files supported)
-    :type from_url: str`
+    :type from_url: str
     """
     self.update_state(state='PROGRESS', meta={'message': ''})
     assert from_url.lower().endswith('.zip')
