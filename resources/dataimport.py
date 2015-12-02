@@ -10,6 +10,11 @@ import core
 class DataImportRes(Resource):
     @auth.requires_data_import_token
     def post(self):
+        """
+        Start a data import task
+
+        JSON body must include `url` key to import data from (zip file)
+        """
         data = flask.request.get_json()
         if not data:
             raise BadRequest("Request data must be JSON.")
