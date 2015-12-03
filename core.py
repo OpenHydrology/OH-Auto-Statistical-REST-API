@@ -6,3 +6,4 @@ db = app.db
 celery = app.celery()
 
 
+import tasks
