@@ -88,7 +88,7 @@ def import_data(self, from_url):
     """
     self.update_state(state='PROGRESS', meta={'message': ''})
     assert from_url.lower().endswith('.zip')
-    logger.info("Starting to import from url {}".format(zip))
+    logger.info("Starting to import from url {}".format(from_url))
     try:
         db_session = db.Session()
         data_fn = 'data.zip'
