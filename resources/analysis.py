@@ -4,6 +4,7 @@ import os.path
 from flask_restful import Resource
 from flask import Response, url_for, request
 import core
+from werkzeug.exceptions import BadRequest, NotFound
 
 
 class AnalysisRes(Resource):
@@ -19,20 +20,20 @@ class AnalysisRes(Resource):
         except (KeyError, ValueError):
             files = list(f for f in request.files.values() if f)  # filter out empty file input fields
             if len(files) < 1:
-                return {'message': "Catchment file (.cd3 or .xml) required."}, 400
+                raise BadRequest("Catchment file (.cd3 or .xml) required.")
             elif len(files) > 2:
-                return {'message': "Too many files supplied."}, 400
+                raise BadRequest("Too many files supplied.")
             else:
                 try:
                     catchment_file = [f for f in files if os.path.splitext(f.filename)[1].lower() in ['.cd3', '.xml']][0]
                 except IndexError:
-                    return {'message': "Catchment file (.cd3 or .xml) required."}, 400
+                    raise BadRequest("Catchment file (.cd3 or .xml) required.")
                 amax_file = None
                 if len(files) == 2:
                     try:
                         amax_file = [f for f in files if os.path.splitext(f.filename)[1].lower() == '.am'][0]
                     except IndexError:
-                        return {'message': "Second file must be AMAX (.am) file."}, 400
+                        raise BadRequest("Second file must be AMAX (.am) file.")
 
             catchment_str = catchment_file.read().decode('utf-8')
             amax_str = amax_file.read().decode('utf-8') if amax_file else None
@@ -48,7 +49,7 @@ class AnalysisRes(Resource):
             report_text = task.info['result']
             return Response(report_text, mimetype='text/plain')
         else:
-            return {'message': "Analysis not yet completed."}, 404
+            raise NotFound("Analysis does not exist.")
 
 
 class AnalysisStatusRes(Resource):
