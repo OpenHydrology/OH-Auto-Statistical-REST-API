@@ -7,6 +7,14 @@ import os.path
 import requests
 import tempfile
 import zipfile
+import logging
+
+
+logger = logging.getLogger(__name__)
+ch = logging.StreamHandler()
+formatter = logging.Formatter('%(levelname)s: %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 
 @celery.task(bind=True)
@@ -80,6 +88,7 @@ def import_data(self, from_url):
     """
     self.update_state(state='PROGRESS', meta={'message': ''})
     assert from_url.lower().endswith('.zip')
+    logger.info("Starting to import from url {}".format(zip))
     try:
         db_session = db.Session()
         data_fn = 'data.zip'
@@ -89,15 +98,20 @@ def import_data(self, from_url):
                 for chunk in r.iter_content(chunk_size=1024):
                     if chunk:
                         data_f.write(chunk)
+            logger.info("Data downloaded to {}".format(os.path.join(work_folder, data_fn)))
+
             with zipfile.ZipFile(os.path.join(work_folder, data_fn), 'r') as data_f:
                 cd3_and_am = [m for m in data_f.infolist()
                               if os.path.splitext(m.filename)[1].lower() in ['.cd3', '.am']]
                 for member in cd3_and_am:
                     member.filename = os.path.basename(member.filename)  # strip folder info, extract all files to root
                     data_f.extract(member, path=work_folder)
+            logger.info("{} Files extracted to {}".format(len(cd3_and_am), work_folder))
 
             loaders.folder_to_db(work_folder, db_session, method='update', incl_pot=False)
+            logger.info("Catchment files parsed")
             db_session.commit()
+            logger.info("Catchments committed to database")
 
     except Exception as e:
         db_session.rollback()
