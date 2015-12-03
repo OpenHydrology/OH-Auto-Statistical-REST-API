@@ -5,6 +5,7 @@ from flask_restful import Resource
 from flask import Response, url_for, request
 import core
 from werkzeug.exceptions import BadRequest, NotFound
+from werkzeug.utils import redirect
 
 
 class AnalysisRes(Resource):
@@ -25,7 +26,8 @@ class AnalysisRes(Resource):
                 raise BadRequest("Too many files supplied.")
             else:
                 try:
-                    catchment_file = [f for f in files if os.path.splitext(f.filename)[1].lower() in ['.cd3', '.xml']][0]
+                    catchment_file = [f for f in files if os.path.splitext(f.filename)[1].lower() in ['.cd3', '.xml']][
+                        0]
                 except IndexError:
                     raise BadRequest("Catchment file (.cd3 or .xml) required.")
                 amax_file = None
@@ -58,14 +60,13 @@ class AnalysisStatusRes(Resource):
         task = core.tasks.do_analysis.AsyncResult(task_id)
 
         if task.state == 'PENDING':
-            response = {'state': task.state, 'message': ''}
+            return {'state': task.state, 'message': ''}
         elif task.state != 'FAILURE':
             if 'result' in task.info:
                 # Redirect to analysis task results
-                response = '', 303, {'Location': url_for('get_analysis', _external=True, _scheme='https',
-                                                         task_id=task.id)}
+                return redirect(url_for('get_analysis', _external=True, _scheme='https', task_id=task.id),
+                                code=303)
             else:
-                response = {'state': task.state, 'message': task.info.get('message', '')}
+                return {'state': task.state, 'message': task.info.get('message', '')},
         else:
-            response = {'state': task.state, 'message': '', }
-        return response
+            return {'state': task.state, 'message': '', }
