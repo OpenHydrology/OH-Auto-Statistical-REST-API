@@ -11,10 +11,6 @@ import logging
 
 
 logger = logging.getLogger(__name__)
-ch = logging.StreamHandler()
-formatter = logging.Formatter('%(levelname)s: %(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
 
 
 @celery.task(bind=True)
