@@ -14,9 +14,9 @@ from sqlalchemy.orm import sessionmaker
 
 
 class Application(object):
-    def __init__(self, config, debug=True):
+    def __init__(self, settings):
         self.flask_app = flask.Flask(__name__)
-        self.flask_app.config.from_object('settings')
+        self.flask_app.config.from_object(settings)
         flask.ext.cors.CORS(self.flask_app, resources=r'/api/*', allow_headers=['Content-Type', 'Authorization'],
                             expose_headers=['Location'])
 
@@ -28,7 +28,6 @@ class Application(object):
         self.db.Session = sessionmaker(bind=self.db.engine)
         self._set_db_session()
 
-        self.debug = debug
         self._set_routes()
 
     def _set_routes(self):
@@ -69,5 +68,5 @@ class Application(object):
         return celery
 
     def start_app(self):
-        self.flask_app.run(debug=self.debug)
+        self.flask_app.run()
 

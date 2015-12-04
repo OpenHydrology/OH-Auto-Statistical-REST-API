@@ -17,4 +17,5 @@
 
 import core
 
+# set environment variable FLASK_DEBUG to 1 to run in debug mode.
 core.app.start_app()

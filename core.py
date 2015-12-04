@@ -1,7 +1,8 @@
 from application import Application
-import os
+import settings
 
-app = Application(os.environ, debug=False)
+
+app = Application(settings)
 db = app.db
 celery = app.celery()
 
