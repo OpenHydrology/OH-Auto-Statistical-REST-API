@@ -1,0 +1,19 @@
+name: env
+
+channels:
+- https://conda.anaconda.org/faph
+- https://conda.anaconda.org/openhydrology
+
+dependencies:
+- python=3.4.*
+- nose
+- floodestimation=0.7.1
+- jinja2
+- psycopg2
+- flask=0.10.*
+- flask-restful=0.3.4
+- requests
+- pip:
+  - gunicorn
+  - celery[redis]
+  - flask-cors
