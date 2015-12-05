@@ -1,8 +1,9 @@
 [run]
 source =
     ./*
-    ./resources/*
 
 include =
     ./*
-    ./resources/*
+
+exclude =
+    ./tests/*
