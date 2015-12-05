@@ -5,5 +5,5 @@ source =
 include =
     ./*
 
-exclude =
+omit =
     ./tests/*
