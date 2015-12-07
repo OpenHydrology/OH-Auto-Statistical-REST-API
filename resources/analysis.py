@@ -26,19 +26,20 @@ class AnalysisRes(Resource):
                 raise BadRequest("Too many files supplied.")
             else:
                 try:
-                    catchment_file = [f for f in files if os.path.splitext(f.filename)[1].lower() in ['.cd3', '.xml']][
-                        0]
+                    catchment_file = [f for f in files
+                                      if os.path.splitext(f.filename)[1].lower() in ['.cd3', '.xml']][0]
                 except IndexError:
                     raise BadRequest("Catchment file (.cd3 or .xml) required.")
                 amax_file = None
                 if len(files) == 2:
                     try:
-                        amax_file = [f for f in files if os.path.splitext(f.filename)[1].lower() == '.am'][0]
+                        amax_file = [f for f in files
+                                     if os.path.splitext(f.filename)[1].lower() == '.am'][0]
                     except IndexError:
                         raise BadRequest("Second file must be AMAX (.am) file.")
 
-            catchment_str = catchment_file.read().decode('utf-8')
-            amax_str = amax_file.read().decode('utf-8') if amax_file else None
+            catchment_str = catchment_file.read().decode('utf-8').replace('\r\n', '\n')
+            amax_str = amax_file.read().decode('utf-8').replace('\r\n', '\n') if amax_file else None
             task = core.tasks.do_analysis.delay(catchment_str, amax_str=amax_str)
 
         # Return status URL
