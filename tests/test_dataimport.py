@@ -4,12 +4,13 @@ import flask
 from unittest.mock import MagicMock
 
 
-core.tasks.import_data.run = MagicMock()
-core.celery.conf['CELERY_ALWAYS_EAGER'] = True
-
-
 class DataImportTestCase(unittest.TestCase):
     API_URL = '/api/v0'
+
+    @classmethod
+    def setUpClass(cls):
+        core.tasks.import_data.run = MagicMock()
+        core.celery.conf['CELERY_ALWAYS_EAGER'] = True
 
     def setUp(self):
         self.test_client = core.app.flask_app.test_client()
