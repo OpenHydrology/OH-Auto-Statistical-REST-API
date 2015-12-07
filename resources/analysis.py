@@ -47,7 +47,7 @@ class AnalysisRes(Resource):
 
     def get(self, task_id):
         """Return the results of the analysis task"""
-        task = core.tasks.do_analysis.AsyncResult(task_id)
+        task = core.tasks.do_analysis.AsyncResult(task_id)  # This also seems to collect `do_analysis_from_id` tasks!
         if task.state == 'SUCCESS':
             report_text = task.info['result']
             return Response(report_text, mimetype='text/plain')
