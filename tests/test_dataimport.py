@@ -4,7 +4,8 @@ import flask
 from unittest.mock import MagicMock
 
 
-core.tasks.import_data.delay = MagicMock()
+core.tasks.import_data.run = MagicMock()
+core.celery.conf['CELERY_ALWAYS_EAGER'] = True
 
 
 class DataImportTestCase(unittest.TestCase):
@@ -81,4 +82,4 @@ class DataImportTestCase(unittest.TestCase):
         resp = self.test_client.post(self.API_URL + '/data-imports/', data=body, headers=headers,
                                      content_type='application/json')
         self.assertEqual(resp.status_code, 202)
-        core.tasks.import_data.delay.assert_called_with('https://bla.com/file.zip')
+        core.tasks.import_data.run.assert_called_with('https://bla.com/file.zip')
