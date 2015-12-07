@@ -36,6 +36,13 @@ class DataImportTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 401)
         self.assertEqual(data['message'], "Authorization header must be Bearer + \s + token")
 
+    def test_incorrect_token(self):
+        headers = {'Authorization': 'Bearer bla'}
+        resp = self.test_client.post(self.API_URL + '/data-imports/', headers=headers)
+        data = flask.json.loads(resp.data)
+        self.assertEqual(resp.status_code, 401)
+        self.assertEqual(data['message'], "Bearer token not valid")
+
     def test_plain_text_body(self):
         headers = {'Authorization': 'Bearer ' + core.app.flask_app.config['DATA_IMPORT_TOKEN']}
         body = "bla"
