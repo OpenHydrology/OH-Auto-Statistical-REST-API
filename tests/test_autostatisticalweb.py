@@ -31,6 +31,10 @@ class TemplateEnvironmentTestCase(unittest.TestCase):
         s = self.TE.dateformat(datetime.date(2000, 1, 31), format='%Y-%m-%d')
         self.assertEqual(s, '2000-01-31')
 
+    def test_dateformat_non_date(self):
+        s = self.TE.dateformat(None)
+        self.assertEqual(s, '')
+
     def test_round_default(self):
         s = self.TE.round(1.234)
         self.assertEqual(s, '1.23')
@@ -38,6 +42,10 @@ class TemplateEnvironmentTestCase(unittest.TestCase):
     def test_round_custom(self):
         s = self.TE.round(1.01, decimals=1)
         self.assertEqual(s, '1.0')
+
+    def test_round_non_numeric(self):
+        s = self.TE.round(None)
+        self.assertEqual(s, '')
 
     def test_float_column_default(self):
         s = self.TE.floatcolumn(1.2)
@@ -55,6 +63,10 @@ class TemplateEnvironmentTestCase(unittest.TestCase):
         s = self.TE.floatcolumn(1.2, sep_pos=3)
         self.assertEqual(s, ' 1.200\u2007\u2007\u2007\u2007\u2007\u2007')
 
+    def test_float_column_zero_decimals(self):
+        s = self.TE.floatcolumn(1.2, decimals=0)
+        self.assertEqual(s, '          1\u2008')
+
     def test_signif_default(self):
         s = self.TE.signif(1.23)
         self.assertEqual(s, '1.2')
@@ -70,6 +82,10 @@ class TemplateEnvironmentTestCase(unittest.TestCase):
     def test_signif_significance(self):
         s = self.TE.signif(1.23, significance=4)
         self.assertEqual(s, '1.230')
+
+    def test_signif_non_numeric(self):
+        s = self.TE.signif(None)
+        self.assertEqual(s, '')
 
     def test_signifcolumn_default(self):
         s = self.TE.signifcolumn(1.23)
@@ -99,6 +115,10 @@ class TemplateEnvironmentTestCase(unittest.TestCase):
         s = self.TE.intcolumn(1.23)
         self.assertEqual(s, '           1')
 
+    def test_intcolumn_non_numeric(self):
+        s = self.TE.intcolumn(None)
+        self.assertEqual(s, '            ')
+
     def test_strcolumn_default(self):
         s = self.TE.strcolumn('bla')
         self.assertEqual(s, 'bla                      ')
@@ -112,10 +132,18 @@ class TemplateEnvironmentTestCase(unittest.TestCase):
         s = self.TE.strcolumn('bla', width=2)
         self.assertEqual(s, 'bla')
 
+    def test_strcolumn_non_string(self):
+        s = self.TE.strcolumn(None)
+        self.assertEqual(s, '                         ')
+
     def test_default_default(self):
         s = self.TE.default(None)
         self.assertEqual(s, '')
 
     def test_default_custom(self):
         s = self.TE.default(None, 'bla')
+        self.assertEqual(s, 'bla')
+
+    def test_default_value_provided(self):
+        s = self.TE.default('bla', default='bla bla')
         self.assertEqual(s, 'bla')
