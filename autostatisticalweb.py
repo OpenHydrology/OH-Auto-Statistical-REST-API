@@ -26,8 +26,6 @@ class Analysis(object):
         self.results = {}
         #: QMED result value
         self.qmed = None
-        #: Any exceptions occurring during analysis
-        self.exc = None
 
     def _load_data(self):
         self.results['report_date'] = date.today()
