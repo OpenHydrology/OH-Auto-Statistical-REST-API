@@ -8,6 +8,24 @@ class AutoStatisticalTestCase(unittest.TestCase):
     pass
 
 
+class ReportTestCase(unittest.TestCase):
+    def test_report_setup(self):
+        r = aw.Report({}, 'normal.md')
+        self.assertEqual(r.template.name, 'normal.md')
+
+    def test_report_get_content(self):
+        # minimum dummy context to be able to render template
+        empty_context = {'catchment': {'point': {}, 'descriptors': {'centroid_ngr': {}}},
+                         'nrfa': {},
+                         'qmed': {},
+                         'gc': {'distr_params': {}}}
+        r = aw.Report(empty_context, 'normal.md')
+        c = r.get_content()
+        self.assertTrue(c.startswith("# Flood Estimation Report"))
+        self.assertTrue(c.endswith("Open Hydrology Contributors (2015). OH Auto Statistical. "
+                                   "http://docs.open-hydrology.org/projects/oh-auto-statistical"))
+
+
 class TemplateEnvironmentTestCase(unittest.TestCase):
     TE = aw.TemplateEnvironment
 
