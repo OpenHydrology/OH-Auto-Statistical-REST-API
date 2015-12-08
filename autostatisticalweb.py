@@ -74,7 +74,6 @@ class Report(object):
     def __init__(self, context, template_name):
         self.context = context
         self.template_name = template_name
-        self.template_extension = os.path.splitext(template_name)[1]
         self.template = self._get_template()
 
     def _get_template(self):
