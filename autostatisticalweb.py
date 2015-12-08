@@ -29,7 +29,6 @@ class Analysis(object):
 
     def _load_data(self):
         self.results['report_date'] = date.today()
-        self.results['version'] = '0.0.0'
         self.results['catchment'] = self.catchment
         self.gauged_catchments = CatchmentCollections(self.db_session, load_data='manual')
 
