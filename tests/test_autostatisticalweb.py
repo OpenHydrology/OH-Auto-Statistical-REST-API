@@ -2,10 +2,50 @@ import unittest
 import autostatisticalweb as aw
 import datetime
 import os.path
+import floodestimation.parsers
+import core
 
 
 class AutoStatisticalTestCase(unittest.TestCase):
-    pass
+    """
+    Fairly simplistic testing just to make sure we don't break the analyses. The floodestimation library is extensively
+    unit-tested so we should be reasonably ok.
+    """
+    @classmethod
+    def setUpClass(cls):
+        cls.catchment = floodestimation.parsers.Cd3Parser().parse('tests/data/8002.CD3')
+        cls.db_session = core.db.Session()
+
+    def test_analysis_setup(self):
+        a = aw.Analysis(self.catchment, self.db_session)
+        self.assertIsNone(a.gauged_catchments)
+        self.assertEqual(a.results, {})
+        self.assertIsNone(a.qmed)
+
+    def test_analysis_run(self):
+        a = aw.Analysis(self.catchment, self.db_session)
+        r = a.run()
+        self.assertTrue(r.startswith("# Flood Estimation Report"))
+
+    def test_analysis_run_qmed(self):
+        a = aw.Analysis(self.catchment, self.db_session)
+        a._run_qmed_analysis()
+        self.assertEqual(a.results['qmed']['method'], 'descriptors')  # ungauged analysis
+        self.assertGreater(a.qmed, 0)
+        self.assertLess(a.qmed, 1000)  # just test for realistic range
+        self.assertEqual(a.qmed, a.results['qmed']['qmed_descr_urban'])
+        self.assertLessEqual(a.results['qmed']['qmed_descr_rural'],
+                             a.results['qmed']['qmed_descr_urban'])
+
+    def test_analysis_run_growthcurve(self):
+        a = aw.Analysis(self.catchment, self.db_session)
+        a.qmed = 10
+        a._load_data()
+        a._run_growthcurve()
+        self.assertEqual(a.qmed, a.results['gc']['flows'][0])
+        self.assertEqual(a.results['gc']['growth_factors'][0], 1)
+        self.assertTrue(all(gf >= 1 for gf in a.results['gc']['growth_factors']))
+        self.assertLess(a.results['gc']['growth_factors'][-1], 9)  # just test for realistic range
 
 
 class ReportTestCase(unittest.TestCase):
