@@ -25,3 +25,7 @@ class TestTasks(unittest.TestCase):
     def test_data_import(self):
         url = 'https://github.com/OpenHydrology/flood-data/archive/master.zip'
         tasks.import_data(url)
+
+    def test_is_xml(self):
+        catchment_str = open('tests/data/8002.CD3').read()
+        self.assertFalse(tasks.is_xml(catchment_str))
