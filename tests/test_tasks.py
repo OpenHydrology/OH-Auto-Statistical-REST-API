@@ -16,6 +16,11 @@ class TestTasks(unittest.TestCase):
         self.assertTrue(r['result'].startswith("# Flood Estimation Report"))
         self.assertIn("Median of annual maximum flow data", r['result'])
 
+    def test_do_analysis_from_id(self):
+        r = tasks.do_analysis_from_id(3002)
+        self.assertTrue(r['result'].startswith("# Flood Estimation Report"))
+        self.assertIn("Median of annual maximum flow data", r['result'])
+
     @unittest.skip
     def test_data_import(self):
         url = 'https://github.com/OpenHydrology/flood-data/archive/master.zip'
