@@ -1,5 +1,5 @@
-OH Auto Statistical web API
-===========================
+OH Auto Statistical REST API
+============================
 
 Version |version|
 
