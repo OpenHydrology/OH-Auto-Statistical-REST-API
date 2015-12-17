@@ -127,4 +127,4 @@ def is_xml(s):
     :return: True if string is xml
     :rtype: bool
     """
-    return s.startswith('<')
+    return s.startswith('<?xml')
