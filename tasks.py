@@ -58,6 +58,7 @@ def do_analysis_from_id(self, catchment_id):
     :rtype: dict
     """
     self.update_state(state='PROGRESS', meta={'message': ''})
+    assert isinstance(catchment_id, int)
     try:
         db_session = db.Session()
         catchment = db_session.query(entities.Catchment).get(catchment_id)
