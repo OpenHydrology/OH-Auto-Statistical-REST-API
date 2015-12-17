@@ -129,3 +129,44 @@ Analysis tasks
         Location: http://localhost:5000/api/v0/analysis/124cce24-b02f-4ad8-9475-e8826fb4e655
         Server: Werkzeug/0.10.4 Python/3.4.3
         Date: Thu, 05 Nov 2015 20:06:30 GMT
+
+
+Data imports
+------------
+
+.. http:post:: /api/v0/data-imports/
+    :synopsis: Update peak flow data from URL
+
+    Load new data into the peak flow database by providing a URL for a zip file of .cd3 and .am files. The zip file is
+    retrieved and files are parsed and then inserted (update) into the database.
+
+    :reqheader Content-Type: :mimetype:`application/json`
+    :reqheader Authorization: Valid bearer token for authentication
+
+    :statuscode 202: Import task accepted
+    :statuscode 400: Invalid request body
+    :statuscode 401: Missing or invalid bearer token
+
+    **Request**:
+
+    .. code-block:: http
+
+        POST /api/v0/data-imports/ HTTP/1.0
+        Accept: */*
+        Authorization: Bearer secrettoken
+        Content-Type: application/json
+        Host: localhost:5000
+
+        {
+            "url": "https://github.com/OpenHydrology/flood-data/archive/master.zip"
+        }
+
+    **Response**:
+
+    .. code-block:: http
+
+        HTTP/1.0 202 ACCEPTED
+        Content-Type: application/json
+        Content-Length: 3
+        Server: Werkzeug/0.10.4 Python/3.4.3
+        Date: Thu, 05 Nov 2015 17:45:04 GMT
