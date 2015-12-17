@@ -44,7 +44,7 @@ class TestTasks(unittest.TestCase):
         s = requests.session()
         s.mount('file://', LocalFileAdapter())
         with mock.patch.object(tasks.requests, 'get', s.get):
-            url = 'file:' + urllib.request.pathname2url(os.path.abspath('tests/data/data.zip'))
+            url = 'file://' + urllib.request.pathname2url(os.path.abspath('tests/data/data.zip'))
             tasks.import_data(url)
             # TODO: assert something!
 
