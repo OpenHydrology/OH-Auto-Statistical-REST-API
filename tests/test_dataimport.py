@@ -21,6 +21,7 @@ class DataImportTestCase(unittest.TestCase):
         data = flask.json.loads(resp.get_data())
         self.assertEqual(resp.status_code, 401)
         self.assertEqual(data['message'], "Authorization header is expected")
+        self.assertFalse(import_data.called)
 
     def test_non_bearer_token(self, import_data):
         headers = {'Authorization': 'bla'}
@@ -28,6 +29,7 @@ class DataImportTestCase(unittest.TestCase):
         data = flask.json.loads(resp.get_data())
         self.assertEqual(resp.status_code, 401)
         self.assertEqual(data['message'], "Authorization header must start with Bearer")
+        self.assertFalse(import_data.called)
 
     def test_empty_token(self, import_data):
         headers = {'Authorization': 'Bearer'}
@@ -35,6 +37,7 @@ class DataImportTestCase(unittest.TestCase):
         data = flask.json.loads(resp.get_data())
         self.assertEqual(resp.status_code, 401)
         self.assertEqual(data['message'], "Token not found")
+        self.assertFalse(import_data.called)
 
     def test_too_many_token_parts(self, import_data):
         headers = {'Authorization': 'Bearer bla bla'}
@@ -42,6 +45,7 @@ class DataImportTestCase(unittest.TestCase):
         data = flask.json.loads(resp.get_data())
         self.assertEqual(resp.status_code, 401)
         self.assertEqual(data['message'], "Authorization header must be Bearer + \s + token")
+        self.assertFalse(import_data.called)
 
     def test_incorrect_token(self, import_data):
         headers = {'Authorization': 'Bearer bla'}
@@ -49,6 +53,7 @@ class DataImportTestCase(unittest.TestCase):
         data = flask.json.loads(resp.get_data())
         self.assertEqual(resp.status_code, 401)
         self.assertEqual(data['message'], "Bearer token not valid")
+        self.assertFalse(import_data.called)
 
     def test_plain_text_body(self, import_data):
         headers = {'Authorization': 'Bearer ' + core.app.flask_app.config['DATA_IMPORT_TOKEN']}
@@ -57,6 +62,7 @@ class DataImportTestCase(unittest.TestCase):
         data = flask.json.loads(resp.get_data())
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(data['message'], "Request data must be JSON.")
+        self.assertFalse(import_data.called)
 
     def test_json_body_no_url(self, import_data):
         headers = {'Authorization': 'Bearer ' + core.app.flask_app.config['DATA_IMPORT_TOKEN']}
@@ -66,6 +72,7 @@ class DataImportTestCase(unittest.TestCase):
         data = flask.json.loads(resp.get_data())
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(data['message'], "JSON body must include `url` key.")
+        self.assertFalse(import_data.called)
 
     def test_non_zip_url(self, import_data):
         headers = {'Authorization': 'Bearer ' + core.app.flask_app.config['DATA_IMPORT_TOKEN']}
@@ -76,6 +83,8 @@ class DataImportTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(data['message'],
                          "Download URL must be a .zip file. `https://bla.com/file.tar.gz` was provided.")
+        self.assertFalse(import_data.called)
+
 
     def test_non_existent_zip_url(self, import_data):
         # The REST API does not check if url exists or not, so this should return 202 (Accepted)
