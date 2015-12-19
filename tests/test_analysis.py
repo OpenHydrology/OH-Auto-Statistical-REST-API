@@ -22,12 +22,15 @@ class AnalysisTestCase(unittest.TestCase):
         data = flask.json.loads(resp.get_data())
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(data['message'], "Catchment file (.cd3 or .xml) required.")
+        self.assertFalse(do_analysis.called)
+        self.assertFalse(do_analysis_from_id.called)
 
     def test_catchment_id_only(self, do_analysis, do_analysis_from_id):
         form_data = {'nrfa-id': 3002}
         resp = self.test_client.post(self.API_URL + '/analyses/', data=form_data)
         self.assertEqual(resp.status_code, 202)
         self.assertIn(self.API_URL + '/analysis-tasks/', resp.headers['Location'])
+        self.assertFalse(do_analysis.called)
         do_analysis_from_id.assert_called_with(3002)
 
     def test_non_cd3_file(self, do_analysis, do_analysis_from_id):
@@ -36,6 +39,8 @@ class AnalysisTestCase(unittest.TestCase):
         data = flask.json.loads(resp.get_data())
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(data['message'], "Catchment file (.cd3 or .xml) required.")
+        self.assertFalse(do_analysis.called)
+        self.assertFalse(do_analysis_from_id.called)
 
     def test_cd3_plus_non_am_file(self, do_analysis, do_analysis_from_id):
         form_data = {'file1': (open('tests/data/8002.CD3', 'rb'), '8002.CD3'),
@@ -44,6 +49,8 @@ class AnalysisTestCase(unittest.TestCase):
         data = flask.json.loads(resp.get_data())
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(data['message'], "Second file must be AMAX (.am) file.")
+        self.assertFalse(do_analysis.called)
+        self.assertFalse(do_analysis_from_id.called)
 
     def test_too_many_files(self, do_analysis, do_analysis_from_id):
         form_data = {'file1': (open('tests/data/8002.CD3', 'rb'), '8002.CD3'),
@@ -53,6 +60,8 @@ class AnalysisTestCase(unittest.TestCase):
         data = flask.json.loads(resp.get_data())
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(data['message'], "Too many files supplied.")
+        self.assertFalse(do_analysis.called)
+        self.assertFalse(do_analysis_from_id.called)
 
     def test_cd3_file_only(self, do_analysis, do_analysis_from_id):
         with open('tests/data/8002.CD3', 'r') as cd3_f:
@@ -62,6 +71,7 @@ class AnalysisTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 202)
         self.assertIn(self.API_URL + '/analysis-tasks/', resp.headers['Location'])
         do_analysis.assert_called_with(cd3_content, amax_str=None)
+        self.assertFalse(do_analysis_from_id.called)
 
     def test_cd3_and_am_file(self, do_analysis, do_analysis_from_id):
         with open('tests/data/8002.CD3', 'r') as cd3_f:
@@ -74,6 +84,7 @@ class AnalysisTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 202)
         self.assertIn(self.API_URL + '/analysis-tasks/', resp.headers['Location'])
         do_analysis.assert_called_with(cd3_content, amax_str=am_content)
+        self.assertFalse(do_analysis_from_id.called)
 
     def test_get_non_existent_analysis(self, do_analysis, do_analysis_from_id):
         resp = self.test_client.get(self.API_URL + '/analyses/bla')
