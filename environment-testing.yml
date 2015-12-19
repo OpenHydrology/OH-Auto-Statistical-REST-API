@@ -17,5 +17,5 @@ dependencies:
   - gunicorn
   - celery[redis]
   - flask-cors
-  - coveralls]
+  - coveralls
   - pyjwt
