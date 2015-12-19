@@ -3,6 +3,8 @@
 import functools
 import flask
 import core
+import jwt
+import base64
 from werkzeug.exceptions import Unauthorized
 
 
@@ -19,6 +21,16 @@ def requires_data_import_token(f):
         if token != core.app.flask_app.config['DATA_IMPORT_TOKEN']:  # just a straight comparison
             raise Unauthorized('Bearer token not valid')
 
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+def requires_auth(f):
+    @functools.wraps(f)
+    def decorated(*args, **kwargs):
+        token = auth_token(flask.request.headers)
+        flask.g.user = authenticate_user(token)
         return f(*args, **kwargs)
 
     return decorated
@@ -47,3 +59,32 @@ def auth_token(headers):
         raise Unauthorized('Authorization header must be Bearer + \s + token')
 
     return parts[1]
+
+
+def authenticate_user(token):
+    """
+    Authenticate and return user from JSON Web Token.
+
+    Raises :class:`werkzeug.exceptions.Unauthorized` if token is invalid.
+
+    :param token: JWT
+    :type token: str
+    :return: user
+    :rtype: dict
+    """
+    client_id = core.app.flask_app.config['AUTH_CLIENT_ID']
+    client_secret = core.app.flask_app.config['AUTH_CLIENT_SECRET']
+    try:
+        payload = jwt.decode(
+            token,
+            base64.b64decode(client_secret.replace("_", "/").replace("-", "+")),
+            audience=client_id
+        )
+    except jwt.ExpiredSignature:
+        raise Unauthorized('Token is expired')
+    except jwt.InvalidAudienceError:
+        raise Unauthorized('Incorrect audience')
+    except jwt.DecodeError:
+        raise Unauthorized('Token signature is invalid')
+
+    return payload
