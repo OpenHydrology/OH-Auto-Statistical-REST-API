@@ -86,5 +86,7 @@ def authenticate_user(token):
         raise Unauthorized('Incorrect audience')
     except jwt.DecodeError:
         raise Unauthorized('Token signature is invalid')
+    except jwt.InvalidTokenError:
+        raise Unauthorized('Token invalid')
 
     return payload
