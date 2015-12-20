@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime, timedelta
 import jwt
 import core
 import auth
@@ -48,7 +49,34 @@ class AuthTestCase(unittest.TestCase):
             auth.authenticate_user(token)
         self.assertEqual(cm.exception.description, 'Token signature is invalid')
 
+    def test_expired(self):
+        payload = {
+            'user_id': 0,
+            'aud': self.client_id,
+            'exp': datetime(2000, 1, 1)
+        }
+        token = jwt.encode(
+            payload,
+            base64.b64decode(self.client_secret.replace("_", "/").replace("-", "+"))
+        )
+        with self.assertRaises(Unauthorized) as cm:
+            auth.authenticate_user(token)
+        self.assertEqual(cm.exception.description, 'Token is expired')
+
     def test_valid_jwt(self):
+        payload = {
+            'user_id': 0,
+            'aud': self.client_id,
+            'exp': datetime.utcnow() + timedelta(days=1)
+        }
+        token = jwt.encode(
+            payload,
+            base64.b64decode(self.client_secret.replace("_", "/").replace("-", "+"))
+        )
+        user = auth.authenticate_user(token)
+        self.assertEqual(user['user_id'], 0)
+
+    def test_valid_jwt_no_exp(self):
         payload = {
             'user_id': 0,
             'aud': self.client_id
