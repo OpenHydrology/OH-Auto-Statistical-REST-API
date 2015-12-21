@@ -5,7 +5,7 @@ import flask
 import core
 import jwt
 import base64
-from werkzeug.exceptions import Unauthorized
+from werkzeug.exceptions import Unauthorized, Forbidden
 
 
 def requires_auth(f):
@@ -24,7 +24,7 @@ def requires_importer_role(f):
         token = auth_token(flask.request.headers)
         user = authenticate_user(token)
         if 'importer' not in user["roles"]:
-            raise Unauthorized('Requires `importer` role')
+            raise Forbidden('Requires `importer` role')
         flask.g.user = user
         return f(*args, **kwargs)
 
