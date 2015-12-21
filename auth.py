@@ -26,6 +26,19 @@ def requires_data_import_token(f):
     return decorated
 
 
+def requires_importer_role(f):
+    @functools.wraps(f)
+    def decorated(*args, **kwargs):
+        token = auth_token(flask.request.headers)
+        user = authenticate_user(token)
+        if 'importer' not in user["roles"]:
+            raise Unauthorized('Requires `importer` role')
+        flask.g.user = user
+        return f(*args, **kwargs)
+
+    return decorated
+
+
 def requires_auth(f):
     @functools.wraps(f)
     def decorated(*args, **kwargs):
