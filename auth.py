@@ -5,6 +5,7 @@ import flask
 import core
 import jwt
 import base64
+from datetime import datetime
 from werkzeug.exceptions import Unauthorized, Forbidden
 
 
@@ -129,4 +130,5 @@ def create_jwt(payload, set_audience=True):
     signature = base64.b64decode(secret.replace("_", "/").replace("-", "+"))
     if set_audience:
         payload['aud'] = core.app.flask_app.config['AUTH_CLIENT_ID']
+    payload['iat'] = datetime.utcnow()
     return jwt.encode(payload, signature).decode('utf-8')  # return as string instead of bytes
