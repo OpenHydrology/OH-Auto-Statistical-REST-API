@@ -9,16 +9,35 @@ from werkzeug.exceptions import Unauthorized, Forbidden
 
 
 def requires_auth(f):
+    """
+    Requires user authentication information to be supplied as a JWT.
+
+    Decorator function for Flask requests. If the JWT can be decoded successfully, ``flask.g.user`` will be set with the
+    JWT payload.
+
+    :param f: function or method to be decorated
+    :return: decorated function
+    """
     @functools.wraps(f)
-    def decorated(*args, **kwargs):
+    def decorated_f(*args, **kwargs):
         token = auth_token(flask.request.headers)
         flask.g.user = authenticate_user(token)
         return f(*args, **kwargs)
 
-    return decorated
+    return decorated_f
 
 
 def requires_role(role):
+    """
+    Requires user authentication information to be supplied as a JWT with ``role`` in ``payload['roles']``.
+
+    Decorator function for Flask requests. If the JWT can be decoded successfully, ``flask.g.user`` will be set with the
+    JWT payload.
+
+    :param role: required role
+    :type role: str
+    :return: decorated function
+    """
     def decorate(f):
         def decorated_f(*args, **kwargs):
             token = auth_token(flask.request.headers)
