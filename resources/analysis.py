@@ -6,9 +6,11 @@ from flask import Response, url_for, request
 import core
 from werkzeug.exceptions import BadRequest, NotFound
 from werkzeug.utils import redirect
+import auth
 
 
 class AnalysisRes(Resource):
+    @auth.requires_auth
     def post(self):
         """
         Schedule an analysis task
