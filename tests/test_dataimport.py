@@ -22,9 +22,25 @@ class DataImportTestCase(unittest.TestCase):
 
     def test_no_auth_header(self, import_data):
         resp = self.test_client.post(self.API_URL + '/data-imports/')
-        data = flask.json.loads(resp.get_data())
         self.assertEqual(resp.status_code, 401)
-        self.assertEqual(data['message'], "Authorization header is expected")
+        self.assertFalse(import_data.called)
+
+    def test_no_role(self, import_data):
+        payload = {}
+        auth_token = auth.create_jwt(payload)
+        headers = {'Authorization': 'Bearer ' + auth_token}
+        resp = self.test_client.post(self.API_URL + '/data-imports/', headers=headers)
+        self.assertEqual(resp.status_code, 403)
+        self.assertFalse(import_data.called)
+
+    def test_incorrect_role(self, import_data):
+        payload = {
+            'roles': ['bla']
+        }
+        auth_token = auth.create_jwt(payload)
+        headers = {'Authorization': 'Bearer ' + auth_token}
+        resp = self.test_client.post(self.API_URL + '/data-imports/', headers=headers)
+        self.assertEqual(resp.status_code, 403)
         self.assertFalse(import_data.called)
 
     def test_plain_text_body(self, import_data):
