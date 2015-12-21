@@ -18,17 +18,23 @@ def requires_auth(f):
     return decorated
 
 
-def requires_importer_role(f):
-    @functools.wraps(f)
-    def decorated(*args, **kwargs):
-        token = auth_token(flask.request.headers)
-        user = authenticate_user(token)
-        if 'importer' not in user["roles"]:
-            raise Forbidden('Requires `importer` role')
-        flask.g.user = user
-        return f(*args, **kwargs)
+def requires_role(role):
+    def decorate(f):
+        def decorated_f(*args, **kwargs):
+            token = auth_token(flask.request.headers)
+            user = authenticate_user(token)
+            try:
+                if role not in user["roles"]:
+                    raise Forbidden('Requires role `{}`'.format(role))
+            except KeyError:
+                raise Forbidden('No roles provided in token')
 
-    return decorated
+            flask.g.user = user
+            return f(*args, **kwargs)
+
+        return decorated_f
+
+    return decorate
 
 
 def auth_token(headers):
