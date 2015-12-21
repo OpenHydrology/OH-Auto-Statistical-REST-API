@@ -3,8 +3,7 @@ import core
 import flask
 import tasks
 from unittest import mock
-import jwt
-import base64
+import auth
 
 @mock.patch.object(tasks.import_data, 'run', autospec=True)
 class DataImportTestCase(unittest.TestCase):
@@ -14,14 +13,9 @@ class DataImportTestCase(unittest.TestCase):
     def setUpClass(cls):
         core.celery.conf['CELERY_ALWAYS_EAGER'] = True
         payload = {
-            'sub': 0,
-            'aud': core.app.flask_app.config['AUTH_CLIENT_ID'],
             'roles': ['importer']
         }
-        cls.auth_token = jwt.encode(
-            payload,
-            base64.b64decode(core.app.flask_app.config['AUTH_CLIENT_SECRET'].replace("_", "/").replace("-", "+"))
-        ).decode()
+        cls.auth_token = auth.create_jwt(payload)
 
     def setUp(self):
         self.test_client = core.app.flask_app.test_client()

@@ -18,6 +18,7 @@ def requires_auth(f):
     :param f: function or method to be decorated
     :return: decorated function
     """
+
     @functools.wraps(f)
     def decorated_f(*args, **kwargs):
         token = auth_token(flask.request.headers)
@@ -38,6 +39,7 @@ def requires_role(role):
     :type role: str
     :return: decorated function
     """
+
     def decorate(f):
         def decorated_f(*args, **kwargs):
             token = auth_token(flask.request.headers)
@@ -108,3 +110,23 @@ def authenticate_user(token):
         raise Unauthorized('Token signature is invalid')
     except jwt.InvalidTokenError:  # jwt base exception
         raise Unauthorized('Token invalid')
+
+
+def create_jwt(payload, set_audience=True):
+    """
+    Return a JSON Web Token with data ``payload``.
+
+    Automatically adds ``aud`` to payload if ``set_audience``.
+
+    :param payload: data to encode in jwt
+    :type payload: dict
+    :param set_audience: whether to set the audience info
+    :type set_audience: bool
+    :return: JWT
+    :rtype: str
+    """
+    secret = core.app.flask_app.config['AUTH_CLIENT_SECRET']
+    signature = base64.b64decode(secret.replace("_", "/").replace("-", "+"))
+    if set_audience:
+        payload['aud'] = core.app.flask_app.config['AUTH_CLIENT_ID']
+    return jwt.encode(payload, signature).decode('utf-8')  # return as string instead of bytes
