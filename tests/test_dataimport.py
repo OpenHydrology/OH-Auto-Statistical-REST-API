@@ -27,38 +27,6 @@ class DataImportTestCase(unittest.TestCase):
         self.assertEqual(data['message'], "Authorization header is expected")
         self.assertFalse(import_data.called)
 
-    def test_non_bearer_token(self, import_data):
-        headers = {'Authorization': 'bla'}
-        resp = self.test_client.post(self.API_URL + '/data-imports/', headers=headers)
-        data = flask.json.loads(resp.get_data())
-        self.assertEqual(resp.status_code, 401)
-        self.assertEqual(data['message'], "Authorization header must start with Bearer")
-        self.assertFalse(import_data.called)
-
-    def test_empty_token(self, import_data):
-        headers = {'Authorization': 'Bearer'}
-        resp = self.test_client.post(self.API_URL + '/data-imports/', headers=headers)
-        data = flask.json.loads(resp.get_data())
-        self.assertEqual(resp.status_code, 401)
-        self.assertEqual(data['message'], "Token not found")
-        self.assertFalse(import_data.called)
-
-    def test_too_many_token_parts(self, import_data):
-        headers = {'Authorization': 'Bearer bla bla'}
-        resp = self.test_client.post(self.API_URL + '/data-imports/', headers=headers)
-        data = flask.json.loads(resp.get_data())
-        self.assertEqual(resp.status_code, 401)
-        self.assertEqual(data['message'], "Authorization header must be Bearer + \s + token")
-        self.assertFalse(import_data.called)
-
-    def test_incorrect_token(self, import_data):
-        headers = {'Authorization': 'Bearer bla'}
-        resp = self.test_client.post(self.API_URL + '/data-imports/', headers=headers)
-        data = flask.json.loads(resp.get_data())
-        self.assertEqual(resp.status_code, 401)
-        self.assertEqual(data['message'], "Token signature is invalid")
-        self.assertFalse(import_data.called)
-
     def test_plain_text_body(self, import_data):
         headers = {'Authorization': 'Bearer ' + self.auth_token}
         body = "bla"
@@ -88,7 +56,6 @@ class DataImportTestCase(unittest.TestCase):
         self.assertEqual(data['message'],
                          "Download URL must be a .zip file. `https://bla.com/file.tar.gz` was provided.")
         self.assertFalse(import_data.called)
-
 
     def test_non_existent_zip_url(self, import_data):
         # The REST API does not check if url exists or not, so this should return 202 (Accepted)

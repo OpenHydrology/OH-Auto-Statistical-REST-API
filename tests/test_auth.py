@@ -68,3 +68,34 @@ class AuthTestCase(unittest.TestCase):
         token = auth.create_jwt(payload)
         user = auth.authenticate_user(token)
         self.assertEqual(user['user_id'], 0)
+
+
+class BearerTokenTestCase(unittest.TestCase):
+    def test_no_auth_header(self):
+        headers = {}
+        with self.assertRaises(Unauthorized) as cm:
+            auth.auth_token(headers)
+        self.assertEqual(cm.exception.description, 'Authorization header is expected')
+
+    def test_non_bearer_token(self):
+        headers = {'Authorization': 'bla'}
+        with self.assertRaises(Unauthorized) as cm:
+            auth.auth_token(headers)
+        self.assertEqual(cm.exception.description, 'Authorization header must start with Bearer')
+
+    def test_empty_token(self):
+        headers = {'Authorization': 'Bearer'}
+        with self.assertRaises(Unauthorized) as cm:
+            auth.auth_token(headers)
+        self.assertEqual(cm.exception.description, 'Token not found')
+
+    def test_too_many_token_parts(self):
+        headers = {'Authorization': 'Bearer bla bla'}
+        with self.assertRaises(Unauthorized) as cm:
+            auth.auth_token(headers)
+        self.assertEqual(cm.exception.description, 'Authorization header must be Bearer + \s + token')
+
+    def test_some_token(self):
+        headers = {'Authorization': 'Bearer bla'}
+        token = auth.auth_token(headers)
+        self.assertEqual(token, 'bla')
