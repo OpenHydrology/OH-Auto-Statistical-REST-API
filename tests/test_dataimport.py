@@ -5,6 +5,7 @@ import tasks
 from unittest import mock
 import auth
 
+
 @mock.patch.object(tasks.import_data, 'run', autospec=True)
 class DataImportTestCase(unittest.TestCase):
     API_URL = '/api/v0'
