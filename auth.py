@@ -8,19 +8,11 @@ import base64
 from werkzeug.exceptions import Unauthorized
 
 
-def requires_data_import_token(f):
-    """
-    Decorator function for *simple token string* authentication only.
-
-    For server to server communication only. Token must not be passed to users or javascript clients.
-    """
-
+def requires_auth(f):
     @functools.wraps(f)
     def decorated(*args, **kwargs):
         token = auth_token(flask.request.headers)
-        if token != core.app.flask_app.config['DATA_IMPORT_TOKEN']:  # just a straight comparison
-            raise Unauthorized('Bearer token not valid')
-
+        flask.g.user = authenticate_user(token)
         return f(*args, **kwargs)
 
     return decorated
@@ -34,16 +26,6 @@ def requires_importer_role(f):
         if 'importer' not in user["roles"]:
             raise Unauthorized('Requires `importer` role')
         flask.g.user = user
-        return f(*args, **kwargs)
-
-    return decorated
-
-
-def requires_auth(f):
-    @functools.wraps(f)
-    def decorated(*args, **kwargs):
-        token = auth_token(flask.request.headers)
-        flask.g.user = authenticate_user(token)
         return f(*args, **kwargs)
 
     return decorated
@@ -88,7 +70,7 @@ def authenticate_user(token):
     client_id = core.app.flask_app.config['AUTH_CLIENT_ID']
     client_secret = core.app.flask_app.config['AUTH_CLIENT_SECRET']
     try:
-        payload = jwt.decode(
+        return jwt.decode(
             token,
             base64.b64decode(client_secret.replace("_", "/").replace("-", "+")),
             audience=client_id
@@ -99,7 +81,5 @@ def authenticate_user(token):
         raise Unauthorized('Incorrect audience')
     except jwt.DecodeError:
         raise Unauthorized('Token signature is invalid')
-    except jwt.InvalidTokenError:
+    except jwt.InvalidTokenError:  # jwt base exception
         raise Unauthorized('Token invalid')
-
-    return payload

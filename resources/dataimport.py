@@ -8,7 +8,7 @@ import core
 
 
 class DataImportRes(Resource):
-    @auth.requires_data_import_token
+    @auth.requires_importer_role
     def post(self):
         """
         Start a data import task
