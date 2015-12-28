@@ -4,9 +4,6 @@ OH Auto Statistical REST API
 Version |version|
 
 
-.. _api/doc:
-
-
 Analyses
 --------
 
