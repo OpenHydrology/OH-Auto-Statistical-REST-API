@@ -18,12 +18,16 @@ Analyses
 
     :form (any): ``.xml`` catchment file
     :form (any): ``.am`` annual maximum flow data file (optional)
+    :form nrfa-id: NRFA gauging station number (optional, to be used *instead of* catchment files)
+
+    :reqheader Authorization: OAuth2 Bearer token for authentication
 
     :resheader Content-Type: :mimetype:`application/json`
     :resheader Location: URL to retrieve task status
 
     :statuscode 202: Analysis task accepted
     :statuscode 400: Uploaded files invalid
+    :statuscode 401: Authentication error
 
     **Request**:
 
@@ -31,6 +35,7 @@ Analyses
 
         POST /api/v0/analyses/ HTTP/1.0
         Accept: */*
+        Authorization: Bearer secrettoken
         Host: localhost:5000
 
     **Response**:
@@ -141,11 +146,12 @@ Data imports
     retrieved and files are parsed and then inserted (update) into the database.
 
     :reqheader Content-Type: :mimetype:`application/json`
-    :reqheader Authorization: Valid bearer token for authentication
+    :reqheader Authorization: OAuth2 Bearer token for authentication
 
     :statuscode 202: Import task accepted
     :statuscode 400: Invalid request body
-    :statuscode 401: Missing or invalid bearer token
+    :statuscode 401: Authentication error
+    :statuscode 403: Authorisation error
 
     **Request**:
 
