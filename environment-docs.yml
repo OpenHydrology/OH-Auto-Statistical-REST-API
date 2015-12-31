@@ -1,6 +1,0 @@
-name: env
-
-dependencies:
-- python=3.4.*
-- pip:
-  - sphinxcontrib-httpdomain
